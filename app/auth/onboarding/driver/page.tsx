@@ -30,11 +30,14 @@ const errorMessages: Record<string, string> = {
   "missing-areas": "Select at least one service area.",
 };
 
+type PageProps = {
+  searchParams?: Promise<{ error?: string }> | { error?: string };
+};
+
 export default async function DriverOnboardingPage({
   searchParams,
-}: {
-  searchParams?: { error?: string };
-}) {
+}: PageProps) {
+  const resolvedSearchParams = (await searchParams) ?? {};
   const user = await getUserFromSession();
   if (!user) {
     redirect("/signup");
@@ -47,8 +50,8 @@ export default async function DriverOnboardingPage({
   }
 
   const profile = await getDriverProfile(user.id);
-  const errorMessage = searchParams?.error
-    ? errorMessages[searchParams.error]
+  const errorMessage = resolvedSearchParams.error
+    ? errorMessages[resolvedSearchParams.error]
     : null;
 
   if (user.status === "PENDING_APPROVAL" || user.status === "APPROVED") {

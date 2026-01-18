@@ -18,11 +18,14 @@ const errorMessages: Record<string, string> = {
   "invalid-coordinates": "Latitude and longitude must be valid numbers.",
 };
 
+type PageProps = {
+  searchParams?: Promise<{ error?: string }> | { error?: string };
+};
+
 export default async function CustomerOnboardingPage({
   searchParams,
-}: {
-  searchParams?: { error?: string };
-}) {
+}: PageProps) {
+  const resolvedSearchParams = (await searchParams) ?? {};
   const user = await getUserFromSession();
   if (!user) {
     redirect("/signup");
@@ -35,8 +38,8 @@ export default async function CustomerOnboardingPage({
   }
 
   const profile = await getCustomerProfile(user.id);
-  const errorMessage = searchParams?.error
-    ? errorMessages[searchParams.error]
+  const errorMessage = resolvedSearchParams.error
+    ? errorMessages[resolvedSearchParams.error]
     : null;
 
   if (user.status === "PROFILE_COMPLETED") {

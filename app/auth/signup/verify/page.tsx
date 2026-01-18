@@ -4,17 +4,18 @@ import { resendVerification } from "@/app/lib/auth-actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function SignupVerifyPage({
-  searchParams,
-}: {
-  searchParams?: { email?: string; status?: string };
-}) {
-  const email = searchParams?.email?.trim();
+type PageProps = {
+  searchParams?: Promise<{ email?: string; status?: string }> | { email?: string; status?: string };
+};
+
+export default async function SignupVerifyPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const email = resolvedSearchParams.email?.trim();
   if (!email) {
     redirect("/signup");
   }
 
-  const resent = searchParams?.status === "resent";
+  const resent = resolvedSearchParams.status === "resent";
 
   return (
     <div className="min-h-screen bg-background">

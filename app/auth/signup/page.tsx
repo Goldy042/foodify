@@ -23,14 +23,15 @@ const errorMessages: Record<string, string> = {
   "invalid-token": "Verification link is invalid or expired.",
 };
 
-export default function SignupPage({
-  searchParams,
-}: {
-  searchParams?: { error?: string; role?: string };
-}) {
-  const errorKey = searchParams?.error;
+type PageProps = {
+  searchParams?: Promise<{ error?: string; role?: string }> | { error?: string; role?: string };
+};
+
+export default async function SignupPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const errorKey = resolvedSearchParams.error;
   const errorMessage = errorKey ? errorMessages[errorKey] : null;
-  const roleParam = searchParams?.role;
+  const roleParam = resolvedSearchParams.role;
   const roleMatch = signupRoleOptions.includes(
     roleParam as (typeof signupRoleOptions)[number]
   );
