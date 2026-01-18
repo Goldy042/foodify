@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { consumeVerificationToken, createSession } from "@/app/lib/store";
+import { consumeVerificationToken, createSession } from "@/app/lib/db";
 
 function roleToPath(role: string) {
   return role.toLowerCase();

@@ -7,12 +7,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { areaOptions, bankOptions, vehicleTypes } from "@/app/lib/constants";
+import { Role } from "@/app/generated/prisma/client";
 import { getUserFromSession } from "@/app/lib/session";
+import {
+  areaEnumToLabel,
+  bankEnumToLabel,
+  bankLabelToEnum,
+  mapAreas,
+  vehicleEnumToLabel,
+  vehicleLabelToEnum,
+} from "@/app/lib/db";
 import {
   getDriverProfile,
   updateUser,
   upsertDriverProfile,
-} from "@/app/lib/store";
+} from "@/app/lib/db";
 
 const errorMessages: Record<string, string> = {
   missing: "Please fill in all required fields.",
@@ -30,7 +39,7 @@ export default async function DriverOnboardingPage({
   if (!user) {
     redirect("/signup");
   }
-  if (user.role !== "Driver") {
+  if (user.role !== Role.DRIVER) {
     redirect(`/onboarding/${user.role.toLowerCase()}`);
   }
   if (user.status === "EMAIL_UNVERIFIED") {
@@ -56,7 +65,7 @@ export default async function DriverOnboardingPage({
               <p className="text-sm text-muted-foreground">
                 {user.status === "APPROVED"
                   ? "You can now go online and accept assignments."
-                  : "Your profile is pending admin approval. We will notify you once reviewed."}
+                  : "Your profile is pending approval. We will notify you once reviewed."}
               </p>
             </CardHeader>
           </Card>
@@ -71,7 +80,7 @@ export default async function DriverOnboardingPage({
     if (!authedUser) {
       redirect("/signup");
     }
-    if (authedUser.role !== "Driver") {
+    if (authedUser.role !== Role.DRIVER) {
       redirect(`/onboarding/${authedUser.role.toLowerCase()}`);
     }
 
@@ -106,12 +115,21 @@ export default async function DriverOnboardingPage({
       redirect("/onboarding/driver?error=missing-areas");
     }
 
+    const mappedVehicle =
+      vehicleLabelToEnum[vehicleType as keyof typeof vehicleLabelToEnum];
+    const mappedBank = bankLabelToEnum[bankName as keyof typeof bankLabelToEnum];
+    const mappedAreas = mapAreas(serviceAreas);
+
+    if (!mappedVehicle || !mappedBank || !mappedAreas) {
+      redirect("/onboarding/driver?error=missing");
+    }
+
     await upsertDriverProfile(authedUser.id, {
       licenseNumber,
-      vehicleType,
+      vehicleType: mappedVehicle,
       plateNumber,
-      serviceAreas,
-      bankName,
+      serviceAreas: mappedAreas,
+      bankName: mappedBank,
       accountNumber,
       accountName,
     });
@@ -189,7 +207,11 @@ export default async function DriverOnboardingPage({
                   name="vehicleType"
                   options={vehicleTypes}
                   placeholder="Select vehicle type"
-                  defaultValue={profile?.vehicleType}
+                  defaultValue={
+                    profile?.vehicleType
+                      ? vehicleEnumToLabel[profile.vehicleType]
+                      : undefined
+                  }
                 />
               </div>
             </CardContent>
@@ -203,7 +225,10 @@ export default async function DriverOnboardingPage({
               <MultiCheckboxGroup
                 name="serviceAreas"
                 options={areaOptions}
-                defaultValues={profile?.serviceAreas ?? []}
+                defaultValues={
+                  profile?.serviceAreas?.map((area) => areaEnumToLabel[area]) ??
+                  []
+                }
                 columns={3}
               />
             </CardContent>
@@ -220,7 +245,9 @@ export default async function DriverOnboardingPage({
                   name="bankName"
                   options={bankOptions}
                   placeholder="Select bank"
-                  defaultValue={profile?.bankName}
+                  defaultValue={
+                    profile?.bankName ? bankEnumToLabel[profile.bankName] : undefined
+                  }
                 />
               </div>
               <div className="space-y-2">

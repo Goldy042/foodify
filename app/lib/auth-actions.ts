@@ -8,7 +8,8 @@ import {
   createUser,
   createVerificationToken,
   findUserByEmail,
-} from "./store";
+  roleLabelToEnum,
+} from "./db";
 import { sendVerificationEmail } from "./email";
 
 function normalizeEmail(email: string) {
@@ -37,7 +38,7 @@ export async function signUp(formData: FormData) {
       fullName,
       email,
       passwordHash: hashPassword(password),
-      role,
+      role: roleLabelToEnum[role],
     });
     const token = await createVerificationToken(user.id);
     await sendVerificationEmail({ to: email, token });

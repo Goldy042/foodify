@@ -4,9 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
 enum Role {
@@ -172,6 +170,7 @@ model User {
   sessions          Session[]
   customerOrders    Order[] @relation("CustomerOrders")
   driverOrders      Order[] @relation("DriverOrders")
+  driverAssignments DriverAssignment[] @relation("DriverAssignments")
   payoutsReleased   PayoutLedgerEntry[] @relation("AdminPayouts")
   refundsIssued     Refund[] @relation("AdminRefunds")
 }
@@ -385,7 +384,7 @@ model DriverAssignment {
   rejectedAt DateTime?
 
   order  Order @relation(fields: [orderId], references: [id])
-  driver User  @relation(fields: [driverId], references: [id])
+  driver User  @relation("DriverAssignments", fields: [driverId], references: [id])
 }
 
 model PayoutLedgerEntry {

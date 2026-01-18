@@ -13,12 +13,25 @@ import {
   dayOptions,
   prepTimeOptions,
 } from "@/app/lib/constants";
+import { Role } from "@/app/generated/prisma/client";
 import { getUserFromSession } from "@/app/lib/session";
+import {
+  areaEnumToLabel,
+  areaLabelToEnum,
+  bankEnumToLabel,
+  bankLabelToEnum,
+  cuisineEnumToLabel,
+  dayEnumToLabel,
+  mapCuisineTypes,
+  mapDays,
+  prepTimeEnumToLabel,
+  prepTimeLabelToEnum,
+} from "@/app/lib/db";
 import {
   getRestaurantProfile,
   updateUser,
   upsertRestaurantProfile,
-} from "@/app/lib/store";
+} from "@/app/lib/db";
 
 const errorMessages: Record<string, string> = {
   missing: "Please fill in all required fields.",
@@ -39,7 +52,7 @@ export default async function RestaurantOnboardingPage({
   if (!user) {
     redirect("/signup");
   }
-  if (user.role !== "Restaurant") {
+  if (user.role !== Role.RESTAURANT) {
     redirect(`/onboarding/${user.role.toLowerCase()}`);
   }
   if (user.status === "EMAIL_UNVERIFIED") {
@@ -65,7 +78,7 @@ export default async function RestaurantOnboardingPage({
               <p className="text-sm text-muted-foreground">
                 {user.status === "APPROVED"
                   ? "Your restaurant is live and visible to customers."
-                  : "Your profile is pending admin approval. We will notify you once reviewed."}
+                  : "Your profile is pending approval. We will notify you once reviewed."}
               </p>
             </CardHeader>
           </Card>
@@ -80,7 +93,7 @@ export default async function RestaurantOnboardingPage({
     if (!authedUser) {
       redirect("/signup");
     }
-    if (authedUser.role !== "Restaurant") {
+    if (authedUser.role !== Role.RESTAURANT) {
       redirect(`/onboarding/${authedUser.role.toLowerCase()}`);
     }
 
@@ -135,6 +148,17 @@ export default async function RestaurantOnboardingPage({
       redirect("/onboarding/restaurant?error=missing-days");
     }
 
+    const mappedArea = areaLabelToEnum[area as keyof typeof areaLabelToEnum];
+    const mappedPrepTime =
+      prepTimeLabelToEnum[prepTimeRange as keyof typeof prepTimeLabelToEnum];
+    const mappedBank = bankLabelToEnum[bankName as keyof typeof bankLabelToEnum];
+    const mappedCuisine = mapCuisineTypes(cuisineSelections);
+    const mappedDays = mapDays(daysSelections);
+
+    if (!mappedArea || !mappedPrepTime || !mappedBank || !mappedCuisine || !mappedDays) {
+      redirect("/onboarding/restaurant?error=missing");
+    }
+
     const lat = Number(latRaw);
     const lng = Number(lngRaw);
     if (Number.isNaN(lat) || Number.isNaN(lng)) {
@@ -146,16 +170,16 @@ export default async function RestaurantOnboardingPage({
       logoUrl,
       phoneNumber,
       streetAddress,
-      area,
+      area: mappedArea,
       city: city || "Lagos",
       addressLat: lat,
       addressLng: lng,
-      cuisineTypes: cuisineSelections,
+      cuisineTypes: mappedCuisine,
       openTime,
       closeTime,
-      daysOpen: daysSelections,
-      prepTimeRange,
-      bankName,
+      daysOpen: mappedDays,
+      prepTimeRange: mappedPrepTime,
+      bankName: mappedBank,
       accountNumber,
       accountName,
     });
@@ -245,7 +269,9 @@ export default async function RestaurantOnboardingPage({
                   name="area"
                   options={areaOptions}
                   placeholder="Select area"
-                  defaultValue={profile?.area}
+                  defaultValue={
+                    profile?.area ? areaEnumToLabel[profile.area] : undefined
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -260,7 +286,9 @@ export default async function RestaurantOnboardingPage({
                   type="number"
                   step="0.000001"
                   defaultValue={
-                    profile?.addressLat !== undefined ? profile.addressLat : ""
+                    profile?.addressLat !== undefined
+                      ? Number(profile.addressLat)
+                      : ""
                   }
                   required
                 />
@@ -273,7 +301,9 @@ export default async function RestaurantOnboardingPage({
                   type="number"
                   step="0.000001"
                   defaultValue={
-                    profile?.addressLng !== undefined ? profile.addressLng : ""
+                    profile?.addressLng !== undefined
+                      ? Number(profile.addressLng)
+                      : ""
                   }
                   required
                 />
@@ -286,12 +316,16 @@ export default async function RestaurantOnboardingPage({
               <CardTitle className="text-xl">Cuisine types</CardTitle>
             </CardHeader>
             <CardContent>
-              <MultiCheckboxGroup
-                name="cuisineTypes"
-                options={cuisineTypes}
-                defaultValues={profile?.cuisineTypes ?? []}
-                columns={3}
-              />
+                <MultiCheckboxGroup
+                  name="cuisineTypes"
+                  options={cuisineTypes}
+                  defaultValues={
+                    profile?.cuisineTypes?.map(
+                      (cuisine) => cuisineEnumToLabel[cuisine]
+                    ) ?? []
+                  }
+                  columns={3}
+                />
             </CardContent>
           </Card>
 
@@ -325,7 +359,9 @@ export default async function RestaurantOnboardingPage({
                 <MultiCheckboxGroup
                   name="daysOpen"
                   options={dayOptions}
-                  defaultValues={profile?.daysOpen ?? []}
+                  defaultValues={
+                    profile?.daysOpen?.map((day) => dayEnumToLabel[day]) ?? []
+                  }
                   columns={3}
                 />
               </div>
@@ -343,7 +379,11 @@ export default async function RestaurantOnboardingPage({
                   name="prepTimeRange"
                   options={prepTimeOptions}
                   placeholder="Select prep time"
-                  defaultValue={profile?.prepTimeRange}
+                  defaultValue={
+                    profile?.prepTimeRange
+                      ? prepTimeEnumToLabel[profile.prepTimeRange]
+                      : undefined
+                  }
                 />
               </div>
             </CardContent>
@@ -360,7 +400,9 @@ export default async function RestaurantOnboardingPage({
                   name="bankName"
                   options={bankOptions}
                   placeholder="Select bank"
-                  defaultValue={profile?.bankName}
+                  defaultValue={
+                    profile?.bankName ? bankEnumToLabel[profile.bankName] : undefined
+                  }
                 />
               </div>
               <div className="space-y-2">

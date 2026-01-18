@@ -5,8 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Role } from "@/app/generated/prisma/client";
 import { getUserFromSession } from "@/app/lib/session";
-import { getCustomerProfile, updateUser, upsertCustomerProfile } from "@/app/lib/store";
+import {
+  getCustomerProfile,
+  updateUser,
+  upsertCustomerProfile,
+} from "@/app/lib/db";
 
 const errorMessages: Record<string, string> = {
   missing: "Please fill in all required fields.",
@@ -22,7 +27,7 @@ export default async function CustomerOnboardingPage({
   if (!user) {
     redirect("/signup");
   }
-  if (user.role !== "Customer") {
+  if (user.role !== Role.CUSTOMER) {
     redirect(`/onboarding/${user.role.toLowerCase()}`);
   }
   if (user.status === "EMAIL_UNVERIFIED") {
@@ -58,7 +63,7 @@ export default async function CustomerOnboardingPage({
     if (!authedUser) {
       redirect("/signup");
     }
-    if (authedUser.role !== "Customer") {
+    if (authedUser.role !== Role.CUSTOMER) {
       redirect(`/onboarding/${authedUser.role.toLowerCase()}`);
     }
 
@@ -151,7 +156,7 @@ export default async function CustomerOnboardingPage({
                     step="0.000001"
                     defaultValue={
                       profile?.defaultAddressLat !== undefined
-                        ? profile.defaultAddressLat
+                        ? Number(profile.defaultAddressLat)
                         : ""
                     }
                     required
@@ -166,7 +171,7 @@ export default async function CustomerOnboardingPage({
                     step="0.000001"
                     defaultValue={
                       profile?.defaultAddressLng !== undefined
-                        ? profile.defaultAddressLng
+                        ? Number(profile.defaultAddressLng)
                         : ""
                     }
                     required
