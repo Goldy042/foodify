@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 
+import { Prisma } from "@/app/generated/prisma/client";
+
 import { signupRoleOptions } from "./constants";
 import { hashPassword } from "./auth";
 import {
@@ -14,6 +16,32 @@ import { sendVerificationEmail } from "./email";
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
+}
+
+function logSignupError(error: unknown, email: string) {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    console.error("[signup] prisma known error", {
+      code: error.code,
+      message: error.message,
+      email,
+    });
+    return;
+  }
+  if (error instanceof Prisma.PrismaClientInitializationError) {
+    console.error("[signup] prisma init error", {
+      message: error.message,
+      email,
+    });
+    return;
+  }
+  if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+    console.error("[signup] prisma unknown error", {
+      message: error.message,
+      email,
+    });
+    return;
+  }
+  console.error("[signup] unexpected error", { error, email });
 }
 
 export async function signUp(formData: FormData) {
@@ -46,6 +74,7 @@ export async function signUp(formData: FormData) {
     if (error instanceof Error && error.message === "EMAIL_EXISTS") {
       redirect("/signup?error=email-exists");
     }
+    logSignupError(error, email);
     redirect("/signup?error=signup-failed");
   }
 
