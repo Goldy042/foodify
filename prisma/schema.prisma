@@ -1,0 +1,417 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  RESTAURANT
+  DRIVER
+  ADMIN
+}
+
+enum AccountStatus {
+  EMAIL_UNVERIFIED
+  EMAIL_VERIFIED
+  PROFILE_COMPLETED
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
+enum Area {
+  LEKKI
+  AJAH
+  YABA
+  SURULERE
+  IKEJA
+  VICTORIA_ISLAND
+  IKOYI
+}
+
+enum CuisineType {
+  NIGERIAN
+  FAST_FOOD
+  CONTINENTAL
+  CHINESE
+  PIZZA
+  BURGERS
+  SHAWARMA
+  GRILL_BARBECUE
+  SEAFOOD
+  VEGETARIAN
+  DESSERTS
+  DRINKS_BEVERAGES
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum PrepTimeRange {
+  MINS_10_15
+  MINS_15_25
+  MINS_25_40
+  MINS_40_60
+}
+
+enum BankName {
+  ACCESS_BANK
+  CITIBANK
+  ECOBANK
+  FIDELITY_BANK
+  FIRST_BANK
+  FCMB
+  GLOBUS_BANK
+  GTBANK
+  HERITAGE_BANK
+  JAIZ_BANK
+  KEYSTONE_BANK
+  KUDA
+  LOTUS_BANK
+  MONIEPOINT
+  OPAY
+  POLARIS_BANK
+  PROVIDUS_BANK
+  STANBIC_IBTC
+  STERLING_BANK
+  SUNTRUST_BANK
+  TITAN_TRUST_BANK
+  UBA
+  UNION_BANK
+  UNITY_BANK
+  WEMA_BANK
+  ZENITH_BANK
+}
+
+enum MenuCategoryType {
+  RICE_DISHES
+  SWALLOW_SOUP
+  PASTA
+  GRILLS
+  SNACKS
+  DRINKS
+  DESSERTS
+  COMBOS
+}
+
+enum MeasurementUnit {
+  PLATE
+  HALF_PLATE
+  BOWL
+  KG_1
+  KG_2
+  CL_50
+  CL_60
+  L_1
+}
+
+enum VehicleType {
+  BIKE
+  CAR
+}
+
+enum OrderStatus {
+  PLACED
+  PAID
+  FAILED_PAYMENT
+  ACCEPTED
+  REJECTED
+  PREPARING
+  READY_FOR_PICKUP
+  DRIVER_ASSIGNED
+  PICKED_UP
+  EN_ROUTE
+  DELIVERED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum PayoutRecipientType {
+  RESTAURANT
+  DRIVER
+}
+
+enum PayoutStatus {
+  HELD
+  RELEASED
+  REVERSED
+}
+
+model User {
+  id           String        @id @default(uuid()) @db.Uuid
+  fullName     String
+  email        String        @unique
+  passwordHash String
+  role         Role
+  status       AccountStatus @default(EMAIL_UNVERIFIED)
+  isSuspended  Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  customerProfile   CustomerProfile?
+  restaurantProfile RestaurantProfile?
+  driverProfile     DriverProfile?
+  verificationTokens VerificationToken[]
+  sessions          Session[]
+  customerOrders    Order[] @relation("CustomerOrders")
+  driverOrders      Order[] @relation("DriverOrders")
+  driverAssignments DriverAssignment[] @relation("DriverAssignments")
+  payoutsReleased   PayoutLedgerEntry[] @relation("AdminPayouts")
+  refundsIssued     Refund[] @relation("AdminRefunds")
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model CustomerProfile {
+  id                   String  @id @default(uuid()) @db.Uuid
+  userId               String  @unique @db.Uuid
+  defaultAddressText   String
+  defaultAddressLat    Decimal @db.Decimal(10, 6)
+  defaultAddressLng    Decimal @db.Decimal(10, 6)
+  deliveryInstructions String?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model RestaurantProfile {
+  id            String         @id @default(uuid()) @db.Uuid
+  userId        String         @unique @db.Uuid
+  restaurantName String
+  logoUrl       String
+  phoneNumber   String
+  streetAddress String
+  area          Area
+  city          String         @default("Lagos")
+  addressLat    Decimal        @db.Decimal(10, 6)
+  addressLng    Decimal        @db.Decimal(10, 6)
+  cuisineTypes  CuisineType[]
+  openTime      String
+  closeTime     String
+  daysOpen      DayOfWeek[]
+  prepTimeRange PrepTimeRange
+  bankName      BankName
+  accountNumber String
+  accountName   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user          User         @relation(fields: [userId], references: [id])
+  menuCategories MenuCategory[]
+  menuItems     MenuItem[]
+  orders        Order[]      @relation("RestaurantOrders")
+}
+
+model DriverProfile {
+  id           String      @id @default(uuid()) @db.Uuid
+  userId       String      @unique @db.Uuid
+  licenseNumber String
+  vehicleType  VehicleType
+  plateNumber  String
+  serviceAreas Area[]
+  bankName     BankName
+  accountNumber String
+  accountName  String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model MenuCategory {
+  id           String           @id @default(uuid()) @db.Uuid
+  restaurantId String           @db.Uuid
+  category     MenuCategoryType
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  restaurant RestaurantProfile @relation(fields: [restaurantId], references: [id])
+  items      MenuItem[]
+}
+
+model MenuItem {
+  id           String   @id @default(uuid()) @db.Uuid
+  restaurantId String   @db.Uuid
+  categoryId   String   @db.Uuid
+  name         String
+  description  String?
+  baseImageUrl String
+  isAvailable  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  restaurant    RestaurantProfile @relation(fields: [restaurantId], references: [id])
+  category      MenuCategory      @relation(fields: [categoryId], references: [id])
+  measurements  MenuItemMeasurement[]
+  modifierGroups ModifierGroup[]
+  orderItems    OrderItem[]
+}
+
+model MenuItemMeasurement {
+  id              String         @id @default(uuid()) @db.Uuid
+  menuItemId      String         @db.Uuid
+  unit            MeasurementUnit
+  basePrice       Decimal        @db.Decimal(10, 2)
+  prepTimeOverride PrepTimeRange?
+  createdAt       DateTime       @default(now())
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+model ModifierGroup {
+  id            String   @id @default(uuid()) @db.Uuid
+  menuItemId    String   @db.Uuid
+  name          String
+  isRequired    Boolean  @default(false)
+  maxSelections Int
+  createdAt     DateTime @default(now())
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+  options  ModifierOption[]
+}
+
+model ModifierOption {
+  id              String   @id @default(uuid()) @db.Uuid
+  modifierGroupId String   @db.Uuid
+  name            String
+  priceDelta      Decimal  @db.Decimal(10, 2)
+
+  modifierGroup ModifierGroup @relation(fields: [modifierGroupId], references: [id])
+  orderSelections OrderItemModifierSelection[]
+}
+
+model Order {
+  id                       String      @id @default(uuid()) @db.Uuid
+  customerId               String      @db.Uuid
+  restaurantId             String      @db.Uuid
+  driverId                 String?     @db.Uuid
+  deliveryAddressText      String
+  deliveryLat              Decimal     @db.Decimal(10, 6)
+  deliveryLng              Decimal     @db.Decimal(10, 6)
+  itemsSubtotal            Decimal     @db.Decimal(10, 2)
+  deliveryFee              Decimal     @db.Decimal(10, 2)
+  serviceFee               Decimal     @db.Decimal(10, 2)
+  total                    Decimal     @db.Decimal(10, 2)
+  status                   OrderStatus @default(PLACED)
+  deliveryConfirmationCode String
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+
+  customer   User              @relation("CustomerOrders", fields: [customerId], references: [id])
+  restaurant RestaurantProfile @relation("RestaurantOrders", fields: [restaurantId], references: [id])
+  driver     User?             @relation("DriverOrders", fields: [driverId], references: [id])
+  items      OrderItem[]
+  payment    Payment?
+  assignment DriverAssignment?
+  payouts    PayoutLedgerEntry[]
+  refund     Refund?
+}
+
+model OrderItem {
+  id               String          @id @default(uuid()) @db.Uuid
+  orderId          String          @db.Uuid
+  menuItemId       String          @db.Uuid
+  measurementUnit  MeasurementUnit
+  quantity         Int
+  unitPrice        Decimal         @db.Decimal(10, 2)
+  lineTotal        Decimal         @db.Decimal(10, 2)
+
+  order     Order    @relation(fields: [orderId], references: [id])
+  menuItem  MenuItem @relation(fields: [menuItemId], references: [id])
+  modifiers OrderItemModifierSelection[]
+}
+
+model OrderItemModifierSelection {
+  id               String   @id @default(uuid()) @db.Uuid
+  orderItemId      String   @db.Uuid
+  modifierOptionId String   @db.Uuid
+  priceDelta       Decimal  @db.Decimal(10, 2)
+
+  orderItem      OrderItem     @relation(fields: [orderItemId], references: [id])
+  modifierOption ModifierOption @relation(fields: [modifierOptionId], references: [id])
+}
+
+model Payment {
+  id               String        @id @default(uuid()) @db.Uuid
+  orderId          String        @unique @db.Uuid
+  provider         String
+  providerReference String
+  status           PaymentStatus @default(PENDING)
+  amount           Decimal       @db.Decimal(10, 2)
+  createdAt        DateTime      @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+model DriverAssignment {
+  id         String   @id @default(uuid()) @db.Uuid
+  orderId    String   @unique @db.Uuid
+  driverId   String   @db.Uuid
+  assignedAt DateTime @default(now())
+  acceptedAt DateTime?
+  rejectedAt DateTime?
+
+  order  Order @relation(fields: [orderId], references: [id])
+  driver User  @relation("DriverAssignments", fields: [driverId], references: [id])
+}
+
+model PayoutLedgerEntry {
+  id               String             @id @default(uuid()) @db.Uuid
+  orderId          String             @db.Uuid
+  recipientType    PayoutRecipientType
+  recipientId      String             @db.Uuid
+  amount           Decimal            @db.Decimal(10, 2)
+  status           PayoutStatus        @default(HELD)
+  holdUntil        DateTime?
+  releasedAt       DateTime?
+  releasedByAdminId String?           @db.Uuid
+  createdAt        DateTime           @default(now())
+
+  order           Order @relation(fields: [orderId], references: [id])
+  releasedByAdmin User? @relation("AdminPayouts", fields: [releasedByAdminId], references: [id])
+}
+
+model Refund {
+  id               String   @id @default(uuid()) @db.Uuid
+  orderId          String   @unique @db.Uuid
+  amount           Decimal  @db.Decimal(10, 2)
+  reason           String
+  refundedAt       DateTime?
+  refundedByAdminId String? @db.Uuid
+  createdAt        DateTime @default(now())
+
+  order          Order @relation(fields: [orderId], references: [id])
+  refundedByAdmin User? @relation("AdminRefunds", fields: [refundedByAdminId], references: [id])
+}
