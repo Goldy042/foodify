@@ -166,21 +166,21 @@ export const vehicleEnumToLabel: Record<VehicleType, string> = {
   [VehicleType.CAR]: "Car",
 };
 
-export function mapAreas(labels: string[]) {
+export function mapAreas(labels: readonly string[]) {
   const mapped = labels
     .map((label) => areaLabelToEnum[label as keyof typeof areaLabelToEnum])
     .filter(Boolean);
   return mapped.length === labels.length ? mapped : null;
 }
 
-export function mapCuisineTypes(labels: string[]) {
+export function mapCuisineTypes(labels: readonly string[]) {
   const mapped = labels
     .map((label) => cuisineLabelToEnum[label as keyof typeof cuisineLabelToEnum])
     .filter(Boolean);
   return mapped.length === labels.length ? mapped : null;
 }
 
-export function mapDays(labels: string[]) {
+export function mapDays(labels: readonly string[]) {
   const mapped = labels
     .map((label) => dayLabelToEnum[label as keyof typeof dayLabelToEnum])
     .filter(Boolean);

@@ -12,7 +12,7 @@ const revealDefaults = {
   ease: "power3.out",
 };
 
-export function useMarketingAnimations(scope: RefObject<HTMLElement>) {
+export function useMarketingAnimations(scope: RefObject<HTMLElement | null>) {
   useLayoutEffect(() => {
     if (!scope.current) return;
 
