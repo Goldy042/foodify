@@ -19,6 +19,11 @@ type CartPayload = {
   }>;
 };
 
+type ParsedCartResult = {
+  cart: CartPayload;
+  hadInvalidItems: boolean;
+};
+
 function generateDeliveryCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
@@ -27,16 +32,87 @@ function toDecimal(value: number) {
   return new Prisma.Decimal(value.toFixed(2));
 }
 
-function parseCart(raw: string): CartPayload | null {
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function parseCart(raw: string): ParsedCartResult | null {
   try {
-    const parsed = JSON.parse(raw) as CartPayload;
+    const parsed = JSON.parse(raw) as {
+      restaurantId?: unknown;
+      items?: unknown;
+    };
     if (!parsed || typeof parsed !== "object") {
       return null;
     }
-    if (!parsed.restaurantId || !Array.isArray(parsed.items)) {
+    const restaurantId = parsed.restaurantId;
+    const itemsInput = parsed.items;
+
+    if (!isNonEmptyString(restaurantId) || !Array.isArray(itemsInput)) {
       return null;
     }
-    return parsed;
+
+    let hadInvalidItems = false;
+    const items: CartPayload["items"] = [];
+
+    for (const item of itemsInput) {
+      if (!item || typeof item !== "object") {
+        hadInvalidItems = true;
+        continue;
+      }
+
+      const candidate = item as {
+        menuItemId?: unknown;
+        measurementId?: unknown;
+        quantity?: unknown;
+        modifiers?: unknown;
+      };
+
+      if (
+        !isNonEmptyString(candidate.menuItemId) ||
+        !isNonEmptyString(candidate.measurementId) ||
+        !Number.isFinite(candidate.quantity)
+      ) {
+        hadInvalidItems = true;
+        continue;
+      }
+
+      let modifiers: Array<{ id: string }> | undefined;
+      if (Array.isArray(candidate.modifiers)) {
+        const validModifiers = candidate.modifiers
+          .filter(
+            (modifier) =>
+              modifier &&
+              typeof modifier === "object" &&
+              isNonEmptyString((modifier as { id?: unknown }).id)
+          )
+          .map((modifier) => ({ id: (modifier as { id: string }).id }));
+
+        if (validModifiers.length !== candidate.modifiers.length) {
+          hadInvalidItems = true;
+        }
+        if (validModifiers.length > 0) {
+          modifiers = validModifiers;
+        }
+      } else if (candidate.modifiers !== undefined) {
+        hadInvalidItems = true;
+      }
+
+      items.push({
+        menuItemId: candidate.menuItemId,
+        measurementId: candidate.measurementId,
+        quantity: Number(candidate.quantity),
+        ...(modifiers ? { modifiers } : {}),
+      });
+    }
+
+    return {
+      cart: {
+        restaurantId,
+        items,
+      },
+      hadInvalidItems,
+    };
   } catch {
     return null;
   }
@@ -48,10 +124,15 @@ export async function placeOrder(formData: FormData) {
     redirect("/customer/cart?error=empty-cart");
   }
 
-  const cart = parseCart(cartRaw);
-  if (!cart || cart.items.length === 0) {
+  const parsedCart = parseCart(cartRaw);
+  if (!parsedCart || parsedCart.cart.items.length === 0) {
     redirect("/customer/cart?error=empty-cart");
   }
+  if (parsedCart.hadInvalidItems) {
+    redirect("/customer/cart?error=invalid-item");
+  }
+
+  const cart = parsedCart.cart;
 
   const user = await getUserFromSession();
   if (!user) {
@@ -164,7 +245,9 @@ export async function placeOrder(formData: FormData) {
     itemsSubtotal += lineTotal;
 
     itemCreates.push({
-      menuItemId: menuItem.id,
+      menuItem: {
+        connect: { id: menuItem.id },
+      },
       measurementUnit: measurement.unit,
       quantity,
       unitPrice: toDecimal(unitPrice),

@@ -214,7 +214,7 @@ export default async function RestaurantDetailPage({ params }: PageProps) {
                                           className="rounded-full border border-border/70 px-3 py-1"
                                         >
                                           {option.name} •{" "}
-                                          {formatCurrency(option.priceDelta)}
+                                          {formatCurrency(Number(option.priceDelta))}
                                         </span>
                                       ))}
                                     </div>
