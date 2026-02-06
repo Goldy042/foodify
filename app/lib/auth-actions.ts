@@ -1,14 +1,16 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 import { Prisma } from "@/app/generated/prisma/client";
 
 import { signupRoleOptions } from "./constants";
-import { hashPassword } from "./auth";
+import { hashPassword, verifyPassword } from "./auth";
 import {
   createUser,
   createVerificationToken,
+  createSession,
   findUserByEmail,
   roleLabelToEnum,
 } from "./db";
@@ -67,6 +69,36 @@ function logSignupError(error: unknown, email: string) {
   console.error("[signup] unexpected error", { error, email });
 }
 
+function logSigninError(error: unknown, email: string) {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    console.error("[signin] prisma known error", {
+      code: error.code,
+      message: error.message,
+      email,
+    });
+    return;
+  }
+  if (error instanceof Prisma.PrismaClientInitializationError) {
+    console.error("[signin] prisma init error", {
+      message: error.message,
+      email,
+    });
+    return;
+  }
+  if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+    console.error("[signin] prisma unknown error", {
+      message: error.message,
+      email,
+    });
+    return;
+  }
+  console.error("[signin] unexpected error", { error, email });
+}
+
+function roleToPath(role: string) {
+  return role.toLowerCase();
+}
+
 export async function signUp(formData: FormData) {
   const fullName = String(formData.get("fullName") || "").trim();
   const emailInput = String(formData.get("email") || "").trim();
@@ -123,4 +155,53 @@ export async function resendVerification(formData: FormData) {
   await sendVerificationEmail({ to: email, token });
 
   redirect(`/signup/verify?email=${encodeURIComponent(email)}&status=resent`);
+}
+
+export async function signIn(formData: FormData) {
+  const emailInput = String(formData.get("email") || "").trim();
+  const password = String(formData.get("password") || "");
+
+  if (!emailInput || !password) {
+    redirect("/login?error=missing-fields");
+  }
+
+  const email = normalizeEmail(emailInput);
+  let user;
+
+  try {
+    user = await findUserByEmail(email);
+  } catch (error) {
+    logSigninError(error, email);
+    redirect("/login?error=login-failed");
+  }
+
+  if (!user || !verifyPassword(password, user.passwordHash)) {
+    redirect("/login?error=invalid-credentials");
+  }
+
+  if (user.isSuspended) {
+    redirect("/login?error=suspended");
+  }
+
+  if (user.status === "EMAIL_UNVERIFIED") {
+    redirect(`/signup/verify?email=${encodeURIComponent(email)}`);
+  }
+
+  let sessionToken: string;
+  try {
+    sessionToken = await createSession(user.id);
+  } catch (error) {
+    logSigninError(error, email);
+    redirect("/login?error=login-failed");
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set("foodify_session", sessionToken, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+  });
+
+  redirect(`/onboarding/${roleToPath(user.role)}`);
 }

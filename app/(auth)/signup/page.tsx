@@ -193,7 +193,11 @@ export default async function SignupPage({ searchParams }: PageProps) {
               </p>
             </form>
             <div className="mt-6 border-t border-border/60 pt-4 text-sm text-muted-foreground">
-              Already have an account? Sign in (coming soon).
+              Already have an account?{" "}
+              <Link href="/login" className="text-primary underline-offset-4 hover:underline">
+                Sign in
+              </Link>
+              .
             </div>
           </CardContent>
         </Card>
