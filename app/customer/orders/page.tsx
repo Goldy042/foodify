@@ -37,28 +37,29 @@ export default async function CustomerOrdersPage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-16">
-        <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            Orders
-          </p>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 pb-20 pt-10">
+        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/90 via-amber-400/80 to-amber-200/80 p-8 text-primary-foreground shadow-sm">
+          <div className="pointer-events-none absolute -right-16 -top-20 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
+          <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/80">
+                Orders
+              </p>
               <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-                Your recent orders.
+                Keep tabs on every meal.
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Track your latest activity and order statuses.
+              <p className="text-sm text-primary-foreground/85">
+                Track recent activity, payment status, and delivery updates.
               </p>
             </div>
-            <Button asChild variant="outline">
+            <Button asChild variant="secondary" className="bg-white/90">
               <Link href="/customer">Browse restaurants</Link>
             </Button>
           </div>
-        </header>
+        </section>
 
         {orders.length === 0 ? (
-          <Card className="border-border/70 shadow-sm">
+          <Card className="border-border/60 bg-card/80 shadow-sm">
             <CardHeader>
               <CardTitle className="text-xl">No orders yet</CardTitle>
             </CardHeader>
@@ -72,9 +73,12 @@ export default async function CustomerOrdersPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="grid gap-4">
             {orders.map((order) => (
-              <Card key={order.id} className="border-border/70 shadow-sm">
+              <Card
+                key={order.id}
+                className="border-border/60 bg-card/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
                 <CardContent className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-1">
                     <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">

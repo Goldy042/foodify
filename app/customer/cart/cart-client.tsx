@@ -34,7 +34,7 @@ export function CartClient() {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <Card className="border-border/70 shadow-sm">
+      <Card className="border-border/60 bg-card/80 shadow-sm">
         <CardHeader>
           <CardTitle className="text-xl">Your cart is empty</CardTitle>
         </CardHeader>
@@ -74,7 +74,10 @@ export function CartClient() {
 
         <div className="space-y-4">
           {cart.items.map((item) => (
-            <Card key={item.lineId} className="border-border/70 shadow-sm">
+            <Card
+              key={item.lineId}
+              className="border-border/60 bg-background/80 shadow-sm"
+            >
               <CardContent className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
                   <p className="font-medium">{item.name}</p>
@@ -93,7 +96,7 @@ export function CartClient() {
                     <Input
                       type="number"
                       min={1}
-                      className="w-20"
+                      className="w-20 rounded-full bg-background"
                       value={item.quantity}
                       onChange={(event) => {
                         const value = Number(event.target.value);
@@ -126,7 +129,7 @@ export function CartClient() {
       </section>
 
       <aside className="space-y-4">
-        <Card className="border-border/70 shadow-sm">
+        <Card className="border-border/60 bg-card/80 shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl">Summary</CardTitle>
           </CardHeader>
@@ -156,7 +159,7 @@ export function CartClient() {
             </form>
           </CardContent>
         </Card>
-        <Card className="border-border/70 shadow-sm">
+        <Card className="border-border/60 bg-background/80 shadow-sm">
           <CardContent className="space-y-2 py-4 text-xs text-muted-foreground">
             <p>
               Delivery and service fees are estimates while we finalize pricing

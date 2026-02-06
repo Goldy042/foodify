@@ -61,45 +61,59 @@ export default async function RestaurantDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
-        <header className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-                Restaurant menu
-              </p>
-              <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-                {restaurant.restaurantName}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {areaEnumToLabel[restaurant.area]} •{" "}
-                {formatCuisineList(restaurant.cuisineTypes)}
-              </p>
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 pb-20 pt-10">
+        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/90 via-amber-400/80 to-amber-200/80 p-8 text-primary-foreground shadow-sm">
+          <div className="pointer-events-none absolute -right-16 -top-20 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white/85 text-lg font-semibold text-primary">
+                {restaurant.logoUrl ? (
+                  <img
+                    src={restaurant.logoUrl}
+                    alt={restaurant.restaurantName}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  restaurant.restaurantName.slice(0, 1)
+                )}
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/80">
+                  Restaurant menu
+                </p>
+                <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
+                  {restaurant.restaurantName}
+                </h1>
+                <p className="text-sm text-primary-foreground/85">
+                  {areaEnumToLabel[restaurant.area]} •{" "}
+                  {formatCuisineList(restaurant.cuisineTypes)}
+                </p>
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button asChild variant="outline">
+              <Button asChild variant="secondary" className="bg-white/90">
                 <Link href="/customer/cart">View cart</Link>
               </Button>
-              <Button variant="outline" disabled>
+              <Button variant="secondary" className="bg-white/70" disabled>
                 Checkout coming soon
               </Button>
             </div>
           </div>
-          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-            <span className="rounded-full border border-border/70 px-3 py-1">
+          <div className="relative z-10 mt-5 flex flex-wrap gap-3 text-xs text-primary-foreground/85">
+            <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1">
               Prep {prepTimeEnumToLabel[restaurant.prepTimeRange]}
             </span>
-            <span className="rounded-full border border-border/70 px-3 py-1">
+            <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1">
               {restaurant.openTime} - {restaurant.closeTime}
             </span>
-            <span className="rounded-full border border-border/70 px-3 py-1">
+            <span className="rounded-full border border-white/30 bg-white/10 px-3 py-1">
               {daysOpen}
             </span>
           </div>
-        </header>
+        </section>
 
         {restaurant.menuCategories.length === 0 ? (
-          <Card className="border-border/70 shadow-sm">
+          <Card className="border-border/60 bg-card/80 shadow-sm">
             <CardHeader>
               <CardTitle className="text-xl">Menu coming soon</CardTitle>
             </CardHeader>
@@ -123,7 +137,7 @@ export default async function RestaurantDetailPage({ params }: PageProps) {
                   </span>
                 </div>
                 {category.items.length === 0 ? (
-                  <Card className="border-border/70 shadow-sm">
+                  <Card className="border-border/60 bg-card/80 shadow-sm">
                     <CardContent className="py-4 text-sm text-muted-foreground">
                       No items yet in this category.
                     </CardContent>
@@ -131,7 +145,10 @@ export default async function RestaurantDetailPage({ params }: PageProps) {
                 ) : (
                   <div className="grid gap-5 md:grid-cols-2">
                     {category.items.map((item) => (
-                      <Card key={item.id} className="border-border/70 shadow-sm">
+                      <Card
+                        key={item.id}
+                        className="border-border/60 bg-card/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                      >
                         <CardHeader className="space-y-2">
                           <CardTitle className="text-lg">{item.name}</CardTitle>
                           {item.description ? (

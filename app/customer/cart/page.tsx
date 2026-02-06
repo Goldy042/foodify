@@ -43,18 +43,21 @@ export default async function CustomerCartPage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
-        <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            Cart
-          </p>
-          <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-            Review your order.
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            Check item quantities and pricing before you checkout.
-          </p>
-        </header>
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 pb-20 pt-10">
+        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/90 via-amber-400/80 to-amber-200/80 p-8 text-primary-foreground shadow-sm">
+          <div className="pointer-events-none absolute -left-16 -top-20 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
+          <div className="relative z-10 space-y-2">
+            <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/80">
+              Cart
+            </p>
+            <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
+              Review your order.
+            </h1>
+            <p className="max-w-2xl text-sm text-primary-foreground/85">
+              Check item quantities and pricing before you checkout.
+            </p>
+          </div>
+        </section>
 
         {errorMessage ? (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -62,7 +65,7 @@ export default async function CustomerCartPage({ searchParams }: PageProps) {
           </div>
         ) : null}
 
-        <Card className="border-border/70 shadow-sm">
+        <Card className="border-border/70 bg-card/80 shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl">Order details</CardTitle>
           </CardHeader>
