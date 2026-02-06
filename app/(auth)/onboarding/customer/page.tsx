@@ -2,21 +2,28 @@ import { redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Role } from "@/app/generated/prisma/client";
 import { getUserFromSession } from "@/app/lib/session";
-import {
-  getCustomerProfile,
-  updateUser,
-  upsertCustomerProfile,
-} from "@/app/lib/db";
+import { updateUser, upsertCustomerProfile } from "@/app/lib/db";
 
-const errorMessages: Record<string, string> = {
-  missing: "Please fill in all required fields.",
-  "invalid-coordinates": "Latitude and longitude must be valid numbers.",
-};
+function hashString(value: string) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function fakeCoordinates(seed: string) {
+  const hash = hashString(seed || "foodify");
+  const lat = 6.4 + ((hash % 3000) / 10000);
+  const lng = 3.2 + (((Math.floor(hash / 3000)) % 4000) / 10000);
+  return {
+    lat: Number(lat.toFixed(6)),
+    lng: Number(lng.toFixed(6)),
+  };
+}
 
 type PageProps = {
   searchParams?: Promise<{ error?: string }> | { error?: string };
@@ -25,7 +32,7 @@ type PageProps = {
 export default async function CustomerOnboardingPage({
   searchParams,
 }: PageProps) {
-  const resolvedSearchParams = (await searchParams) ?? {};
+  await searchParams;
   const user = await getUserFromSession();
   if (!user) {
     redirect("/signup");
@@ -36,11 +43,6 @@ export default async function CustomerOnboardingPage({
   if (user.status === "EMAIL_UNVERIFIED") {
     redirect(`/signup/verify?email=${encodeURIComponent(user.email)}`);
   }
-
-  const profile = await getCustomerProfile(user.id);
-  const errorMessage = resolvedSearchParams.error
-    ? errorMessages[resolvedSearchParams.error]
-    : null;
 
   if (user.status === "PROFILE_COMPLETED") {
     return (
@@ -60,7 +62,7 @@ export default async function CustomerOnboardingPage({
     );
   }
 
-  async function completeCustomerProfile(formData: FormData) {
+  async function completeCustomerProfile() {
     "use server";
     const authedUser = await getUserFromSession();
     if (!authedUser) {
@@ -70,29 +72,17 @@ export default async function CustomerOnboardingPage({
       redirect(`/onboarding/${authedUser.role.toLowerCase()}`);
     }
 
-    const fullName = String(formData.get("fullName") || "").trim();
-    const address = String(formData.get("address") || "").trim();
-    const latRaw = String(formData.get("lat") || "").trim();
-    const lngRaw = String(formData.get("lng") || "").trim();
-    const instructions = String(formData.get("instructions") || "").trim();
+    const seed = `${authedUser.id}:${authedUser.email}`;
+    const { lat, lng } = fakeCoordinates(seed);
 
-    if (!fullName || !address || !latRaw || !lngRaw) {
-      redirect("/onboarding/customer?error=missing");
-    }
-
-    const lat = Number(latRaw);
-    const lng = Number(lngRaw);
-    if (Number.isNaN(lat) || Number.isNaN(lng)) {
-      redirect("/onboarding/customer?error=invalid-coordinates");
-    }
-
-    await updateUser(authedUser.id, { fullName, status: "PROFILE_COMPLETED" });
     await upsertCustomerProfile(authedUser.id, {
-      defaultAddressText: address,
+      defaultAddressText: "Dynamic location (set per order)",
       defaultAddressLat: lat,
       defaultAddressLng: lng,
-      deliveryInstructions: instructions || null,
+      deliveryInstructions: null,
     });
+
+    await updateUser(authedUser.id, { status: "PROFILE_COMPLETED" });
 
     redirect("/onboarding/customer");
   }
@@ -105,93 +95,26 @@ export default async function CustomerOnboardingPage({
             Customer onboarding
           </p>
           <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-            Complete your customer profile
+            You are almost ready to order.
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Set your default delivery address and map pin. Your account becomes
-            active immediately after completion.
+            We keep your location flexible, so you can set delivery details per
+            order. No extra setup needed.
           </p>
         </header>
 
         <Card className="border-border/70 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-xl">Profile details</CardTitle>
+            <CardTitle className="text-xl">Finish setup</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {errorMessage ? (
-              <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                {errorMessage}
-              </div>
-            ) : null}
-            <form action={completeCustomerProfile} className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full name</Label>
-                  <Input
-                    id="fullName"
-                    name="fullName"
-                    defaultValue={user.fullName}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" value={user.email} readOnly />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Default delivery address</Label>
-                <Input
-                  id="address"
-                  name="address"
-                  defaultValue={profile?.defaultAddressText ?? ""}
-                  placeholder="Enter delivery address"
-                  required
-                />
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="lat">Map pin latitude</Label>
-                  <Input
-                    id="lat"
-                    name="lat"
-                    type="number"
-                    step="0.000001"
-                    defaultValue={
-                      profile?.defaultAddressLat !== undefined
-                        ? Number(profile.defaultAddressLat)
-                        : ""
-                    }
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lng">Map pin longitude</Label>
-                  <Input
-                    id="lng"
-                    name="lng"
-                    type="number"
-                    step="0.000001"
-                    defaultValue={
-                      profile?.defaultAddressLng !== undefined
-                        ? Number(profile.defaultAddressLng)
-                        : ""
-                    }
-                    required
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="instructions">Delivery instructions (optional)</Label>
-                <Textarea
-                  id="instructions"
-                  name="instructions"
-                  defaultValue={profile?.deliveryInstructions ?? ""}
-                  placeholder="Extra notes for drivers"
-                />
-              </div>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Tap below to activate your profile. You can update delivery notes
+              anytime in your orders.
+            </p>
+            <form action={completeCustomerProfile}>
               <Button type="submit" className="w-full">
-                Save customer profile
+                Activate customer profile
               </Button>
             </form>
           </CardContent>

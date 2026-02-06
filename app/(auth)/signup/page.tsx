@@ -1,15 +1,55 @@
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { signupRoleOptions } from "@/app/lib/constants";
 import { signUp } from "@/app/lib/auth-actions";
 
-const roleDescriptions: Record<(typeof signupRoleOptions)[number], string> = {
-  Customer: "Order from restaurants and track delivery.",
-  Restaurant: "List menus and fulfill customer orders.",
-  Driver: "Deliver orders and get paid after confirmation.",
+type RoleOption = (typeof signupRoleOptions)[number];
+
+type RoleContent = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  perks: string[];
+};
+
+const roleContent: Record<RoleOption, RoleContent> = {
+  Customer: {
+    eyebrow: "Customer signup",
+    title: "Order from trusted kitchens in minutes.",
+    description:
+      "Foodify keeps ordering simple with verified restaurants, live tracking, and secure delivery handoff.",
+    perks: ["Verified restaurants", "Live rider tracking", "Pickup or delivery"],
+  },
+  Restaurant: {
+    eyebrow: "Restaurant signup",
+    title: "Grow your kitchen with a low, flat fee.",
+    description:
+      "Reach nearby customers, manage a structured menu, and keep payouts predictable.",
+    perks: ["5% service fee", "Structured menus", "Reliable payouts"],
+  },
+  Driver: {
+    eyebrow: "Rider signup",
+    title: "Deliver smarter and earn faster.",
+    description:
+      "Smart routing, clear drop-offs, and immediate payout after confirmation.",
+    perks: ["Instant payouts", "Smart routes", "Personal dashboard"],
+  },
+};
+
+const roleAliases: Record<string, RoleOption> = {
+  customer: "Customer",
+  customers: "Customer",
+  restaurant: "Restaurant",
+  restaurants: "Restaurant",
+  resturants: "Restaurant",
+  driver: "Driver",
+  drivers: "Driver",
+  rider: "Driver",
+  riders: "Driver",
 };
 
 const errorMessages: Record<string, string> = {
@@ -27,17 +67,20 @@ type PageProps = {
   searchParams?: Promise<{ error?: string; role?: string }> | { error?: string; role?: string };
 };
 
+function resolveRole(param?: string): RoleOption | null {
+  if (!param) return null;
+  const normalized = param.trim().toLowerCase();
+  return roleAliases[normalized] ?? null;
+}
+
 export default async function SignupPage({ searchParams }: PageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const errorKey = resolvedSearchParams.error;
   const errorMessage = errorKey ? errorMessages[errorKey] : null;
-  const roleParam = resolvedSearchParams.role;
-  const roleMatch = signupRoleOptions.includes(
-    roleParam as (typeof signupRoleOptions)[number]
-  );
-  const defaultRole = roleMatch
-    ? (roleParam as (typeof signupRoleOptions)[number])
-    : "Customer";
+  const resolvedRole = resolveRole(resolvedSearchParams.role);
+  const selectedRole = resolvedRole ?? "Customer";
+  const isRoleLocked = Boolean(resolvedRole);
+  const content = roleContent[selectedRole];
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,51 +88,65 @@ export default async function SignupPage({ searchParams }: PageProps) {
         <section className="flex-1 space-y-6">
           <div className="space-y-3">
             <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-              Foodify onboarding
+              {content.eyebrow}
             </p>
             <h1 className="font-display text-4xl font-semibold tracking-tight md:text-5xl">
-              Start with the role that fits you
+              {content.title}
             </h1>
             <p className="max-w-xl text-base leading-7 text-muted-foreground">
-              Choose the role that matches your work. You will verify your email
-              first, then complete a role-specific profile with structured
-              fields.
+              {content.description}
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card className="border-border/70">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">
-                  Email verification required
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                A single-use link is sent to activate your account and unlock
-                profile setup.
-              </CardContent>
-            </Card>
-            <Card className="border-border/70">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">
-                  Profile completion gate
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                Dashboard access stays locked until your profile is completed.
-              </CardContent>
-            </Card>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {content.perks.map((perk) => (
+              <div
+                key={perk}
+                className="rounded-2xl border border-border/70 bg-card/70 px-4 py-4 text-sm font-medium"
+              >
+                {perk}
+              </div>
+            ))}
           </div>
+
+          {!isRoleLocked ? (
+            <div className="rounded-2xl border border-border/70 bg-muted/40 p-4">
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                Choose a role
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {signupRoleOptions.map((role) => (
+                  <Button
+                    key={role}
+                    asChild
+                    size="sm"
+                    variant={role === selectedRole ? "default" : "outline"}
+                  >
+                    <Link href={`/signup?role=${role}`}>{role}</Link>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Signing up as <span className="font-semibold">{selectedRole}</span>.{" "}
+              <Link href="/signup" className="text-primary underline-offset-4 hover:underline">
+                Change role
+              </Link>
+            </p>
+          )}
         </section>
 
         <Card className="w-full max-w-md border-border/70 shadow-sm">
-          <CardHeader>
+          <CardHeader className="space-y-2">
             <CardTitle className="text-2xl">Create your account</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Role selected: <span className="font-medium">{defaultRole}</span>
+              Just your name, email, and password. We handle the rest.
             </p>
           </CardHeader>
           <CardContent>
             <form action={signUp} className="space-y-5">
+              <input type="hidden" name="role" value={selectedRole} />
               {errorMessage ? (
                 <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                   {errorMessage}
@@ -128,31 +185,6 @@ export default async function SignupPage({ searchParams }: PageProps) {
                   required
                 />
               </div>
-              <fieldset className="space-y-3">
-                <Label className="text-sm font-medium">Role</Label>
-                <RadioGroup
-                  defaultValue={defaultRole}
-                  name="role"
-                  className="space-y-3"
-                >
-                  {signupRoleOptions.map((role) => (
-                    <label
-                      key={role}
-                      className="flex cursor-pointer items-start gap-3 rounded-lg border border-border/70 bg-background px-3 py-3 text-sm transition hover:border-border"
-                    >
-                      <RadioGroupItem value={role} className="mt-1" />
-                      <span className="space-y-1">
-                        <span className="block font-medium text-foreground">
-                          {role}
-                        </span>
-                        <span className="block text-xs text-muted-foreground">
-                          {roleDescriptions[role]}
-                        </span>
-                      </span>
-                    </label>
-                  ))}
-                </RadioGroup>
-              </fieldset>
               <Button type="submit" className="w-full">
                 Create account
               </Button>
