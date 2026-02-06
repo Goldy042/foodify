@@ -56,25 +56,26 @@ export default async function CustomerProfilePage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-16">
-        <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            Profile
-          </p>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 pb-20 pt-10">
+        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/90 via-amber-400/80 to-amber-200/80 p-8 text-primary-foreground shadow-sm">
+          <div className="pointer-events-none absolute -right-10 -top-16 h-36 w-36 rounded-full bg-white/20 blur-3xl" />
+          <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/80">
+                Profile
+              </p>
               <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-                Update your details.
+                Update your delivery details.
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Keep your delivery address and contact info current.
+              <p className="text-sm text-primary-foreground/85">
+                Keep your address and delivery notes up to date for smoother handoffs.
               </p>
             </div>
-            <Button asChild variant="outline">
+            <Button asChild variant="secondary" className="bg-white/90">
               <Link href="/customer">Back to dashboard</Link>
             </Button>
           </div>
-        </header>
+        </section>
 
         {errorMessage ? (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -89,7 +90,7 @@ export default async function CustomerProfilePage({ searchParams }: PageProps) {
         ) : null}
 
         <form action={updateCustomerProfile} className="grid gap-6">
-          <Card className="border-border/70 shadow-sm">
+          <Card className="border-border/60 bg-card/80 shadow-sm">
             <CardHeader>
               <CardTitle className="text-xl">Customer details</CardTitle>
             </CardHeader>
