@@ -1,14 +1,15 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Role } from "@/app/generated/prisma/client";
 import { getUserFromSession } from "@/app/lib/session";
-import { getCustomerProfile, updateUser, upsertCustomerProfile } from "@/app/lib/db";
-import Link from "next/link";
+import { Role } from "@/app/generated/prisma/client";
+import { getCustomerProfile } from "@/app/lib/db";
+import { updateCustomerProfile } from "@/app/lib/profile-actions";
 import { AppHeader } from "@/components/app/app-header";
 
 const errorMessages: Record<string, string> = {
@@ -17,16 +18,17 @@ const errorMessages: Record<string, string> = {
 };
 
 type PageProps = {
-  searchParams?: Promise<{ error?: string }> | { error?: string };
+  searchParams?: Promise<{ error?: string; status?: string }> | {
+    error?: string;
+    status?: string;
+  };
 };
 
-export default async function CustomerOnboardingPage({
-  searchParams,
-}: PageProps) {
+export default async function CustomerProfilePage({ searchParams }: PageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const user = await getUserFromSession();
   if (!user) {
-    redirect("/signup");
+    redirect("/login");
   }
   if (user.role !== Role.CUSTOMER) {
     redirect(`/onboarding/${user.role.toLowerCase()}`);
@@ -34,85 +36,22 @@ export default async function CustomerOnboardingPage({
   if (user.status === "EMAIL_UNVERIFIED") {
     redirect(`/signup/verify?email=${encodeURIComponent(user.email)}`);
   }
+  if (user.status !== "PROFILE_COMPLETED") {
+    redirect("/onboarding/customer");
+  }
 
   const profile = await getCustomerProfile(user.id);
+  if (!profile) {
+    redirect("/onboarding/customer");
+  }
+
   const errorMessage = resolvedSearchParams.error
     ? errorMessages[resolvedSearchParams.error]
     : null;
-
-  if (user.status === "PROFILE_COMPLETED") {
-    return (
-      <div className="min-h-screen bg-background">
-        <main className="mx-auto flex min-h-screen w-full max-w-xl items-center px-6 py-16">
-          <Card className="w-full border-border/70 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-2xl">Profile completed</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Your customer profile is active. Start browsing approved
-                restaurants.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full">
-                <Link href="/customer">Go to customer dashboard</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </main>
-      </div>
-    );
-  }
-
-  async function completeCustomerProfile(formData: FormData) {
-    "use server";
-    const authedUser = await getUserFromSession();
-    if (!authedUser) {
-      redirect("/signup");
-    }
-    if (authedUser.role !== Role.CUSTOMER) {
-      redirect(`/onboarding/${authedUser.role.toLowerCase()}`);
-    }
-
-    const fullName = String(formData.get("fullName") || "").trim();
-    const addressText = String(formData.get("defaultAddressText") || "").trim();
-    const latInput = String(formData.get("defaultAddressLat") || "").trim();
-    const lngInput = String(formData.get("defaultAddressLng") || "").trim();
-    const deliveryInstructions = String(
-      formData.get("deliveryInstructions") || ""
-    ).trim();
-
-    if (!fullName || !addressText || !latInput || !lngInput) {
-      redirect("/onboarding/customer?error=missing");
-    }
-
-    const lat = Number(latInput);
-    const lng = Number(lngInput);
-    if (
-      !Number.isFinite(lat) ||
-      !Number.isFinite(lng) ||
-      Math.abs(lat) > 90 ||
-      Math.abs(lng) > 180
-    ) {
-      redirect("/onboarding/customer?error=invalidCoords");
-    }
-
-    await upsertCustomerProfile(authedUser.id, {
-      defaultAddressText: addressText,
-      defaultAddressLat: lat,
-      defaultAddressLng: lng,
-      deliveryInstructions: deliveryInstructions ? deliveryInstructions : null,
-    });
-
-    const updates: { fullName?: string; status: "PROFILE_COMPLETED" } = {
-      status: "PROFILE_COMPLETED",
-    };
-    if (fullName !== authedUser.fullName) {
-      updates.fullName = fullName;
-    }
-    await updateUser(authedUser.id, updates);
-
-    redirect("/onboarding/customer");
-  }
+  const statusMessage =
+    resolvedSearchParams.status === "updated"
+      ? "Profile updated successfully."
+      : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,15 +59,21 @@ export default async function CustomerOnboardingPage({
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-16">
         <header className="space-y-3">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            Customer onboarding
+            Profile
           </p>
-          <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-            You are almost ready to order.
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            Add your default delivery address so orders can be routed quickly.
-            You can update this any time from your profile.
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
+                Update your details.
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Keep your delivery address and contact info current.
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link href="/customer">Back to dashboard</Link>
+            </Button>
+          </div>
         </header>
 
         {errorMessage ? (
@@ -137,10 +82,16 @@ export default async function CustomerOnboardingPage({
           </div>
         ) : null}
 
-        <form action={completeCustomerProfile} className="grid gap-6">
+        {statusMessage ? (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            {statusMessage}
+          </div>
+        ) : null}
+
+        <form action={updateCustomerProfile} className="grid gap-6">
           <Card className="border-border/70 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl">Profile details</CardTitle>
+              <CardTitle className="text-xl">Customer details</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
@@ -163,7 +114,7 @@ export default async function CustomerOnboardingPage({
                 <Input
                   id="defaultAddressText"
                   name="defaultAddressText"
-                  defaultValue={profile?.defaultAddressText ?? ""}
+                  defaultValue={profile.defaultAddressText}
                   required
                 />
               </div>
@@ -174,7 +125,7 @@ export default async function CustomerOnboardingPage({
                   name="defaultAddressLat"
                   type="number"
                   step="0.000001"
-                  defaultValue={profile?.defaultAddressLat?.toString() ?? ""}
+                  defaultValue={profile.defaultAddressLat.toString()}
                   required
                 />
               </div>
@@ -185,7 +136,7 @@ export default async function CustomerOnboardingPage({
                   name="defaultAddressLng"
                   type="number"
                   step="0.000001"
-                  defaultValue={profile?.defaultAddressLng?.toString() ?? ""}
+                  defaultValue={profile.defaultAddressLng.toString()}
                   required
                 />
               </div>
@@ -197,7 +148,7 @@ export default async function CustomerOnboardingPage({
                   id="deliveryInstructions"
                   name="deliveryInstructions"
                   rows={3}
-                  defaultValue={profile?.deliveryInstructions ?? ""}
+                  defaultValue={profile.deliveryInstructions ?? ""}
                 />
               </div>
             </CardContent>
@@ -205,10 +156,10 @@ export default async function CustomerOnboardingPage({
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">
-              Submitting activates your customer profile immediately.
+              Changes take effect immediately for new orders.
             </p>
             <Button type="submit" className="sm:w-auto">
-              Activate customer profile
+              Save changes
             </Button>
           </div>
         </form>

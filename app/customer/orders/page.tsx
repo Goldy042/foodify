@@ -7,6 +7,7 @@ import { getUserFromSession } from "@/app/lib/session";
 import { Role } from "@/app/generated/prisma/client";
 import { listCustomerOrders } from "@/app/lib/db";
 import { formatCurrency } from "@/app/lib/pricing";
+import { AppHeader } from "@/components/app/app-header";
 
 function formatDate(value: Date) {
   return value.toLocaleDateString("en-NG", {
@@ -35,6 +36,7 @@ export default async function CustomerOrdersPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppHeader />
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-16">
         <header className="space-y-3">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
