@@ -19,6 +19,7 @@ export async function getUserBySessionToken(token: string) {
     where: { token },
     include: { user: true },
   });
+  console.log("Session found for token:", session);
   if (!session) {
     return null;
   }

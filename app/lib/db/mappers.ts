@@ -3,6 +3,8 @@ import {
   BankName,
   CuisineType,
   DayOfWeek,
+  MeasurementUnit,
+  MenuCategoryType,
   PrepTimeRange,
   Role,
   VehicleType,
@@ -96,6 +98,28 @@ export const prepTimeEnumToLabel: Record<PrepTimeRange, string> = {
   [PrepTimeRange.MINS_15_25]: "15-25 mins",
   [PrepTimeRange.MINS_25_40]: "25-40 mins",
   [PrepTimeRange.MINS_40_60]: "40-60 mins",
+};
+
+export const menuCategoryEnumToLabel: Record<MenuCategoryType, string> = {
+  [MenuCategoryType.RICE_DISHES]: "Rice Dishes",
+  [MenuCategoryType.SWALLOW_SOUP]: "Swallow & Soup",
+  [MenuCategoryType.PASTA]: "Pasta",
+  [MenuCategoryType.GRILLS]: "Grills",
+  [MenuCategoryType.SNACKS]: "Snacks",
+  [MenuCategoryType.DRINKS]: "Drinks",
+  [MenuCategoryType.DESSERTS]: "Desserts",
+  [MenuCategoryType.COMBOS]: "Combos",
+};
+
+export const measurementEnumToLabel: Record<MeasurementUnit, string> = {
+  [MeasurementUnit.PLATE]: "Plate",
+  [MeasurementUnit.HALF_PLATE]: "Half Plate",
+  [MeasurementUnit.BOWL]: "Bowl",
+  [MeasurementUnit.KG_1]: "1kg",
+  [MeasurementUnit.KG_2]: "2kg",
+  [MeasurementUnit.CL_50]: "50cl",
+  [MeasurementUnit.CL_60]: "60cl",
+  [MeasurementUnit.L_1]: "1L",
 };
 
 export const bankLabelToEnum = {
