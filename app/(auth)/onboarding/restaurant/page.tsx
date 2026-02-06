@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation";
 
-import { MultiCheckboxGroup } from "@/components/forms/multi-checkbox-group";
-import { SelectField } from "@/components/forms/select-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,15 +14,10 @@ import {
 import { Role } from "@/app/generated/prisma/client";
 import { getUserFromSession } from "@/app/lib/session";
 import {
-  areaEnumToLabel,
   areaLabelToEnum,
-  bankEnumToLabel,
   bankLabelToEnum,
-  cuisineEnumToLabel,
-  dayEnumToLabel,
   mapCuisineTypes,
   mapDays,
-  prepTimeEnumToLabel,
   prepTimeLabelToEnum,
 } from "@/app/lib/db";
 import {
@@ -35,17 +28,38 @@ import {
 
 const errorMessages: Record<string, string> = {
   missing: "Please fill in all required fields.",
-  "invalid-area": "Select a valid area from the list.",
-  "invalid-prep": "Select a valid preparation time.",
-  "invalid-bank": "Select a valid bank.",
-  "invalid-coordinates": "Latitude and longitude must be valid numbers.",
-  "missing-cuisine": "Select at least one cuisine type.",
-  "missing-days": "Select at least one day of operation.",
 };
 
 type PageProps = {
   searchParams?: Promise<{ error?: string }> | { error?: string };
 };
+
+function hashString(value: string) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function fakeCoordinates(seed: string) {
+  const hash = hashString(seed || "foodify");
+  const lat = 6.4 + ((hash % 3000) / 10000);
+  const lng = 3.2 + (((Math.floor(hash / 3000)) % 4000) / 10000);
+  return {
+    lat: Number(lat.toFixed(6)),
+    lng: Number(lng.toFixed(6)),
+  };
+}
+
+function pickAreaFromAddress(address: string) {
+  const normalized = address.toLowerCase();
+  const match = areaOptions.find((area) =>
+    normalized.includes(area.toLowerCase())
+  );
+  return match ?? areaOptions[0];
+}
 
 export default async function RestaurantOnboardingPage({
   searchParams,
@@ -101,72 +115,31 @@ export default async function RestaurantOnboardingPage({
     }
 
     const restaurantName = String(formData.get("restaurantName") || "").trim();
-    const logoUrl = String(formData.get("logoUrl") || "").trim();
     const phoneNumber = String(formData.get("phoneNumber") || "").trim();
     const streetAddress = String(formData.get("streetAddress") || "").trim();
-    const area = String(formData.get("area") || "").trim();
-    const city = String(formData.get("city") || "Lagos").trim();
-    const latRaw = String(formData.get("lat") || "").trim();
-    const lngRaw = String(formData.get("lng") || "").trim();
-    const cuisineSelections = formData.getAll("cuisineTypes").map(String);
-    const openTime = String(formData.get("openTime") || "").trim();
-    const closeTime = String(formData.get("closeTime") || "").trim();
-    const daysSelections = formData.getAll("daysOpen").map(String);
-    const prepTimeRange = String(formData.get("prepTimeRange") || "").trim();
-    const bankName = String(formData.get("bankName") || "").trim();
-    const accountNumber = String(formData.get("accountNumber") || "").trim();
-    const accountName = String(formData.get("accountName") || "").trim();
 
-    if (
-      !restaurantName ||
-      !logoUrl ||
-      !phoneNumber ||
-      !streetAddress ||
-      !area ||
-      !latRaw ||
-      !lngRaw ||
-      !openTime ||
-      !closeTime ||
-      !prepTimeRange ||
-      !bankName ||
-      !accountNumber ||
-      !accountName
-    ) {
+    if (!restaurantName || !phoneNumber || !streetAddress) {
       redirect("/onboarding/restaurant?error=missing");
     }
 
-    if (!areaOptions.includes(area)) {
-      redirect("/onboarding/restaurant?error=invalid-area");
-    }
-    if (!prepTimeOptions.includes(prepTimeRange)) {
-      redirect("/onboarding/restaurant?error=invalid-prep");
-    }
-    if (!bankOptions.includes(bankName)) {
-      redirect("/onboarding/restaurant?error=invalid-bank");
-    }
-    if (cuisineSelections.length === 0) {
-      redirect("/onboarding/restaurant?error=missing-cuisine");
-    }
-    if (daysSelections.length === 0) {
-      redirect("/onboarding/restaurant?error=missing-days");
-    }
-
-    const mappedArea = areaLabelToEnum[area as keyof typeof areaLabelToEnum];
+    const matchedAreaLabel = pickAreaFromAddress(streetAddress);
+    const mappedArea = areaLabelToEnum[matchedAreaLabel];
     const mappedPrepTime =
-      prepTimeLabelToEnum[prepTimeRange as keyof typeof prepTimeLabelToEnum];
-    const mappedBank = bankLabelToEnum[bankName as keyof typeof bankLabelToEnum];
-    const mappedCuisine = mapCuisineTypes(cuisineSelections);
-    const mappedDays = mapDays(daysSelections);
+      prepTimeLabelToEnum[prepTimeOptions[1] as keyof typeof prepTimeLabelToEnum];
+    const mappedBank = bankLabelToEnum[bankOptions[0]];
+    const mappedCuisine = mapCuisineTypes(cuisineTypes.slice(0, 2));
+    const mappedDays = mapDays(dayOptions);
 
     if (!mappedArea || !mappedPrepTime || !mappedBank || !mappedCuisine || !mappedDays) {
       redirect("/onboarding/restaurant?error=missing");
     }
 
-    const lat = Number(latRaw);
-    const lng = Number(lngRaw);
-    if (Number.isNaN(lat) || Number.isNaN(lng)) {
-      redirect("/onboarding/restaurant?error=invalid-coordinates");
-    }
+    const { lat, lng } = fakeCoordinates(
+      `${streetAddress}:${authedUser.email}`
+    );
+
+    const logoText = encodeURIComponent(restaurantName || "Foodify");
+    const logoUrl = profile?.logoUrl ?? `https://placehold.co/256x256/png?text=${logoText}`;
 
     await upsertRestaurantProfile(authedUser.id, {
       restaurantName,
@@ -174,17 +147,17 @@ export default async function RestaurantOnboardingPage({
       phoneNumber,
       streetAddress,
       area: mappedArea,
-      city: city || "Lagos",
+      city: "Lagos",
       addressLat: lat,
       addressLng: lng,
       cuisineTypes: mappedCuisine,
-      openTime,
-      closeTime,
+      openTime: "09:00",
+      closeTime: "21:00",
       daysOpen: mappedDays,
       prepTimeRange: mappedPrepTime,
       bankName: mappedBank,
-      accountNumber,
-      accountName,
+      accountNumber: String(1000000000 + (hashString(restaurantName) % 9000000000)),
+      accountName: restaurantName,
     });
 
     await updateUser(authedUser.id, { status: "PENDING_APPROVAL" });
@@ -200,11 +173,11 @@ export default async function RestaurantOnboardingPage({
             Restaurant onboarding
           </p>
           <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-            Complete your restaurant profile
+            Launch your restaurant profile fast.
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            Provide verified business, location, and payout details. Your
-            restaurant goes live only after admin approval.
+            Share your restaurant name and address. We will auto-fill the rest of
+            the profile for the demo.
           </p>
         </header>
 
@@ -217,26 +190,15 @@ export default async function RestaurantOnboardingPage({
         <form action={completeRestaurantProfile} className="grid gap-6">
           <Card className="border-border/70 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl">Restaurant identity</CardTitle>
+              <CardTitle className="text-xl">Restaurant details</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
+              <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="restaurantName">Restaurant name</Label>
                 <Input
                   id="restaurantName"
                   name="restaurantName"
                   defaultValue={profile?.restaurantName ?? ""}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="logoUrl">Restaurant logo (image URL)</Label>
-                <Input
-                  id="logoUrl"
-                  name="logoUrl"
-                  type="url"
-                  defaultValue={profile?.logoUrl ?? ""}
-                  placeholder="https://"
                   required
                 />
               </div>
@@ -249,183 +211,12 @@ export default async function RestaurantOnboardingPage({
                   required
                 />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/70 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-xl">Location</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="streetAddress">Street address</Label>
                 <Input
                   id="streetAddress"
                   name="streetAddress"
                   defaultValue={profile?.streetAddress ?? ""}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Area / Neighborhood</Label>
-                <SelectField
-                  name="area"
-                  options={areaOptions}
-                  placeholder="Select area"
-                  defaultValue={
-                    profile?.area ? areaEnumToLabel[profile.area] : undefined
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input id="city" name="city" value="Lagos" readOnly />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lat">Map pin latitude</Label>
-                <Input
-                  id="lat"
-                  name="lat"
-                  type="number"
-                  step="0.000001"
-                  defaultValue={
-                    profile?.addressLat !== undefined
-                      ? Number(profile.addressLat)
-                      : ""
-                  }
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lng">Map pin longitude</Label>
-                <Input
-                  id="lng"
-                  name="lng"
-                  type="number"
-                  step="0.000001"
-                  defaultValue={
-                    profile?.addressLng !== undefined
-                      ? Number(profile.addressLng)
-                      : ""
-                  }
-                  required
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/70 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-xl">Cuisine types</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <MultiCheckboxGroup
-                  name="cuisineTypes"
-                  options={cuisineTypes}
-                  defaultValues={
-                    profile?.cuisineTypes?.map(
-                      (cuisine) => cuisineEnumToLabel[cuisine]
-                    ) ?? []
-                  }
-                  columns={3}
-                />
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/70 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-xl">Operating hours</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="openTime">Open time (HH:MM)</Label>
-                <Input
-                  id="openTime"
-                  name="openTime"
-                  type="time"
-                  defaultValue={profile?.openTime ?? ""}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="closeTime">Close time (HH:MM)</Label>
-                <Input
-                  id="closeTime"
-                  name="closeTime"
-                  type="time"
-                  defaultValue={profile?.closeTime ?? ""}
-                  required
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label>Days open</Label>
-                <MultiCheckboxGroup
-                  name="daysOpen"
-                  options={dayOptions}
-                  defaultValues={
-                    profile?.daysOpen?.map((day) => dayEnumToLabel[day]) ?? []
-                  }
-                  columns={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/70 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-xl">Preparation time</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label>Preparation time (select)</Label>
-                <SelectField
-                  name="prepTimeRange"
-                  options={prepTimeOptions}
-                  placeholder="Select prep time"
-                  defaultValue={
-                    profile?.prepTimeRange
-                      ? prepTimeEnumToLabel[profile.prepTimeRange]
-                      : undefined
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/70 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-xl">Payout details</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2 md:col-span-2">
-                <Label>Bank name</Label>
-                <SelectField
-                  name="bankName"
-                  options={bankOptions}
-                  placeholder="Select bank"
-                  defaultValue={
-                    profile?.bankName ? bankEnumToLabel[profile.bankName] : undefined
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="accountNumber">Account number</Label>
-                <Input
-                  id="accountNumber"
-                  name="accountNumber"
-                  defaultValue={profile?.accountNumber ?? ""}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="accountName">
-                  Account name (auto-resolved via API)
-                </Label>
-                <Input
-                  id="accountName"
-                  name="accountName"
-                  defaultValue={profile?.accountName ?? ""}
-                  placeholder="Account name"
                   required
                 />
               </div>

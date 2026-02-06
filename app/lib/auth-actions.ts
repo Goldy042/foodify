@@ -18,6 +18,29 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
+const roleAliases: Record<string, (typeof signupRoleOptions)[number]> = {
+  customer: "Customer",
+  customers: "Customer",
+  restaurant: "Restaurant",
+  restaurants: "Restaurant",
+  resturants: "Restaurant",
+  driver: "Driver",
+  drivers: "Driver",
+  rider: "Driver",
+  riders: "Driver",
+};
+
+function normalizeRoleInput(roleInput: string) {
+  const normalized = roleInput.trim().toLowerCase();
+  return (
+    roleAliases[normalized] ??
+    signupRoleOptions.find(
+      (option) => option.toLowerCase() === normalized
+    ) ??
+    null
+  );
+}
+
 function logSignupError(error: unknown, email: string) {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     console.error("[signup] prisma known error", {
@@ -54,7 +77,7 @@ export async function signUp(formData: FormData) {
     redirect("/signup?error=missing-fields");
   }
 
-  const role = signupRoleOptions.find((option) => option === roleInput);
+  const role = normalizeRoleInput(roleInput);
   if (!role) {
     redirect("/signup?error=invalid-role");
   }
