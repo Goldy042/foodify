@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile</title>
+  <style>
+    body {
+  font-family: Inter, sans-serif;
+  background: #f9fafb;
+  margin: 0;
+}
+
+.page-header {
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-card {
+  background: white;
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin: 15px;
+  border-radius: 14px;
+}
+
+.profile-card img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.profile-options {
+  margin: 15px;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.option {
+  padding: 18px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.option:last-child {
+  border-bottom: none;
+}
+
+.option:hover {
+  background: #f3f4f6;
+}
+
+/* App container */
+.app-container {
+  max-width: 420px;   /* Chowdeck-style width */
+  margin: 0 auto;
+  padding-bottom: 30px;
+}
+
+/* Center header content */
+.page-header {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Reduce card width and center */
+.profile-card,
+.profile-options,
+.detail-card,
+.wallet-card {
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-options {
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .profile-card {
+    padding: 15px;
+  }
+
+  .option {
+    padding: 16px;
+  }
+
+  .wallet-card h1 {
+    font-size: 1.6rem;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <!-- <header class="page-header">
+    <h2>Profile</h2>
+  </header> -->
+
+  <!-- User Card -->
+  <section class="profile-card">
+    <img src="https://ui-avatars.com/api/?name=Regina+Peter&background=ff6b00&color=fff" />
+    <div>
+      <h3>Regina Peter</h3>
+      <p>ID: <span id="profileId"></span></p>
+    </div>
+  </section>
+
+  <!-- Profile Options -->
+  <section class="profile-options">
+    <div class="option" onclick="goTo('details')">Profile details</div>
+    <div class="option" onclick="goTo('address')">Address</div>
+    <div class="option" onclick="goTo('wallet')">Wallet</div>
+  </section>
+</div>
+<script>
+    document.getElementById("profileId").textContent =
+  Math.floor(100000 + Math.random() * 900000);
+
+function goTo(page) {
+  window.location.href = page + ".html";
+}
+
+</script>
+</body>
+</html>

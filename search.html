@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search Food | Foodify</title>
+  
+  <style>
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background: #f9fafb;
+  color: #1f2937;
+}
+
+/* Header */
+.header {
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #ff6b00, #ff8f3d);
+  color: white;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.header p {
+  opacity: 0.9;
+}
+
+/* Search box */
+.search-box {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+}
+
+.search-box input {
+  width: 100%;
+  max-width: 500px;
+  padding: 15px 18px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+}
+
+/* Results grid */
+.results {
+  padding: 40px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+/* Food card */
+.food-card {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.food-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+}
+
+.food-card img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+}
+
+/* Card content */
+.food-info {
+  padding: 16px;
+}
+
+.food-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.restaurant {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.price {
+  font-weight: 600;
+  color: #ff6b00;
+}
+
+.delivery {
+  background: #f3f4f6;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* Categories */
+.categories {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.cat-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  cursor: pointer;
+}
+
+.cat-btn.active {
+  background: white;
+  color: #ff6b00;
+  font-weight: 600;
+}
+
+/* Floating cart button */
+.cart-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ff6b00;
+  color: white;
+  border: none;
+  padding: 14px 18px;
+  border-radius: 50px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Cart drawer */
+.cart {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 350px;
+  height: 100vh;
+  background: white;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+  transition: 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart.show {
+  right: 0;
+}
+
+.cart-header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-items {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.cart-footer {
+  padding: 20px;
+  border-top: 1px solid #eee;
+}
+
+.checkout-btn {
+  width: 100%;
+  padding: 14px;
+  background: #ff6b00;
+  border: none;
+  color: white;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+  color: #ff6b00;
+}
+
+.add-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #ff6b00;
+  background: white;
+  color: #ff6b00;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.add-btn:hover {
+  background: #ff6b00;
+  color: white;
+}
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-control button {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: #f3f4f6;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  
+  <!-- Header -->
+  <header class="header">
+    <h1>What are you craving? 🍽️</h1>
+    <p>Search meals from top restaurants around you</p>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search for food..." />
+    </div>
+
+    <!-- Categories -->
+    <div class="categories">
+  <button class="cat-btn active" data-category="all">All</button>
+  <button class="cat-btn" data-category="pastries">Pastries</button>
+  <button class="cat-btn" data-category="breakfast">Breakfast</button>
+  <button class="cat-btn" data-category="pizza">Pizza</button>
+  <button class="cat-btn" data-category="soup">Soup</button>
+  <button class="cat-btn" data-category="spaghetti">Spaghetti</button>
+  <button class="cat-btn" data-category="rice">Rice</button>
+  <button class="cat-btn" data-category="shawarma">Shawarma</button>
+  <button class="cat-btn" data-category="chinese">Chinese</button>
+</div>
+
+  </header>
+
+  <!-- Food Results -->
+  <section class="results" id="foodResults"></section>
+
+  <section class="results" id="restaurantView" style="display:none;"></section>
+
+  <button class="back-btn" onclick="goBack()">← Back</button>
+
+  <!-- Cart Button -->
+  <button class="cart-btn" id="openCart">
+    🛒 <span id="cartCount">0</span>
+  </button>
+
+  <!-- Cart Drawer -->
+  <div class="cart" id="cart">
+    <div class="cart-header">
+      <h3>Your Cart</h3>
+      <button id="closeCart">✕</button>
+    </div>
+
+    <div class="cart-items" id="cartItems"></div>
+
+    <div class="cart-footer">
+      <p>Total: <strong id="cartTotal">₦0</strong></p>
+      <button class="checkout-btn">Checkout</button>
+    </div>
+  </div>
+
+<script>
+   const foods = [
+  {
+    food: "Jollof Rice",
+    category: "rice",
+    restaurant: "Mama Put Kitchen",
+    price: 3500,
+image: "https://images.unsplash.com/photo-1550317138-10000687a72b?w=800&auto=format&fit=crop"
+
+  },
+  {
+    food: "Jollof Rice",
+    category: "rice",
+    restaurant: "City Meals",
+    price: 3800,
+    image: "https://images.unsplash.com/photo-1550317138-10000687a72b?w=800&auto=format&fit=crop"
+  },
+  {
+    food: "Jollof Rice",
+    category: "rice",
+    restaurant: "Food Palace",
+    price: 4000,
+    image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&auto=format&fit=crop"
+  },
+  {
+    food: "Pepperoni Pizza",
+    category: "pizza",
+    restaurant: "Pizza Republic",
+    price: 6000,
+    image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&auto=format&fit=crop"
+
+  },
+  {
+    food: "Vegetable Soup",
+    category: "soup",
+    restaurant: "Soup Haven",
+    price: 2500,
+    image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&auto=format&fit=crop"
+  },
+  {
+    food: "Spaghetti Bolognese",
+    category: "spaghetti",
+    restaurant: "Pasta House",
+    price: 4000,
+   image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&auto=format&fit=crop"
+  },
+  {
+    food: "Meat Pie",
+    category: "pastries",
+    restaurant: "Bake Stop",
+    price: 1500,
+    image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&auto=format&fit=crop"
+  },
+  {
+    food: "Akara and Pap",
+    category: "breakfast",
+    restaurant: "Morning Delights",
+    price: 2000,
+    image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&auto=format&fit=crop"
+  },
+  {
+  food: "Chicken Shawarma",
+  category: "shawarma",
+  restaurant: "Wrap City",
+  price: 3200,
+  image: "https://images.unsplash.com/photo-1550317138-10000687a72b?w=800&auto=format&fit=crop"
+},
+{
+  food: "Chinese Fried Rice",
+  category: "chinese",
+  restaurant: "Dragon Palace",
+  price: 4500,
+  image: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&auto=format&fit=crop"
+}
+
+];
+
+
+let cart = [];
+
+const foodResults = document.getElementById("foodResults");
+const searchInput = document.getElementById("searchInput");
+const cartEl = document.getElementById("cart");
+const cartItems = document.getElementById("cartItems");
+const cartTotal = document.getElementById("cartTotal");
+const cartCount = document.getElementById("cartCount");
+
+/* Display foods */
+function displayFoods(list) {
+  foodResults.innerHTML = "";
+
+  list.forEach(item => {
+    foodResults.innerHTML += `
+      <div class="food-card restaurant-card" 
+           onclick="openRestaurant('${item.restaurant}', '${item.food}')">
+        <img src="${item.image}">
+        <div class="food-info">
+          <h3>${item.food}</h3>
+          <p class="restaurant">${item.restaurant}</p>
+          <div class="meta">
+            <span class="price">₦${item.price}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+
+/* Add to cart */
+function addToCart(foodName, restaurant) {
+  const item = foods.find(
+    f => f.food === foodName && f.restaurant === restaurant
+  );
+  cart.push(item);
+  updateCart();
+}
+
+/* Update cart */
+function updateCart() {
+cartItems.innerHTML += `
+  <div class="cart-item">
+    <div>
+      <p>${item.food}</p>
+      <small>${item.restaurant}</small>
+    </div>
+
+    <div class="qty-control">
+      <button onclick="changeQty('${item.food}','${item.restaurant}',-1)">−</button>
+      <span>${item.qty}</span>
+      <button onclick="changeQty('${item.food}','${item.restaurant}',1)">+</button>
+    </div>
+
+    <strong>₦${item.price * item.qty}</strong>
+  </div>
+`;
+}
+
+
+function changeQty(food, restaurant, value) {
+  const item = cart.find(i => i.food === food && i.restaurant === restaurant);
+  item.qty += value;
+
+  if (item.qty <= 0) {
+    cart = cart.filter(i => i !== item);
+  }
+
+  updateCart();
+}
+
+
+/* Search */
+searchInput.addEventListener("input", () => {
+  const value = searchInput.value.toLowerCase();
+  displayFoods(
+    foods.filter(f =>
+      f.name.toLowerCase().includes(value) ||
+      f.restaurant.toLowerCase().includes(value)
+    )
+  );
+});
+
+/* Categories */
+document.querySelectorAll(".cat-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelector(".cat-btn.active").classList.remove("active");
+    btn.classList.add("active");
+
+    const category = btn.dataset.category;
+    displayFoods(
+      category === "all" ? foods : foods.filter(f => f.category === category)
+    );
+  });
+});
+
+/* Cart toggle */
+document.getElementById("openCart").onclick = () => cartEl.classList.add("show");
+document.getElementById("closeCart").onclick = () => cartEl.classList.remove("show");
+
+/* Initial load */
+displayFoods(foods);
+
+function openRestaurant(restaurantName, foodName) {
+  const restaurantView = document.getElementById("restaurantView");
+  foodResults.style.display = "none";
+  restaurantView.style.display = "grid";
+
+  const items = foods.filter(
+    f => f.restaurant === restaurantName && f.food === foodName
+  );
+
+  restaurantView.innerHTML = `
+    <h2 style="grid-column:1/-1">${restaurantName}</h2>
+  `;
+
+  items.forEach(item => {
+    restaurantView.innerHTML += `
+      <div class="food-card">
+        <img src="${item.image}">
+        <div class="food-info">
+          <h3>${item.food}</h3>
+          <div class="meta">
+            <span class="price">₦${item.price}</span>
+            <button class="add-btn" onclick="addToCart('${item.food}', '${item.restaurant}')">
+              + ADD
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+searchInput.addEventListener("input", () => {
+  const value = searchInput.value.toLowerCase();
+  displayFoods(
+    foods.filter(f =>
+      f.food.toLowerCase().includes(value)
+    )
+  );
+});
+
+function goBack() {
+  document.getElementById("restaurantView").style.display = "none";
+  document.getElementById("foodResults").style.display = "grid";
+}
+
+function addToCart(foodName, restaurant) {
+  const existing = cart.find(
+    item => item.food === foodName && item.restaurant === restaurant
+  );
+
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    const item = foods.find(
+      f => f.food === foodName && f.restaurant === restaurant
+    );
+    cart.push({ ...item, qty: 1 });
+  }
+
+  updateCart();
+}
+
+
+</script>
+</body>
+</html>

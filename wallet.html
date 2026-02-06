@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Wallet</title>
+  <style>
+    body {
+  font-family: Inter, sans-serif;
+  background: #f9fafb;
+  margin: 0;
+}
+
+.page-header {
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-card {
+  background: white;
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin: 15px;
+  border-radius: 14px;
+}
+
+.profile-card img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.profile-options {
+  margin: 15px;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.option {
+  padding: 18px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.option:last-child {
+  border-bottom: none;
+}
+
+.option:hover {
+  background: #f3f4f6;
+}
+
+.wallet-card {
+  background: linear-gradient(135deg, #ff6b00, #ff8f3d);
+  color: white;
+  margin: 15px;
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.wallet-card h1 {
+  margin: 10px 0;
+}
+
+.fund {
+  background: white;
+  color: #ff6b00;
+  border: none;
+  padding: 12px;
+  width: 100%;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+/* App container */
+.app-container {
+  max-width: 420px;   /* Chowdeck-style width */
+  margin: 0 auto;
+  padding-bottom: 30px;
+}
+
+/* Center header content */
+.page-header {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Reduce card width and center */
+.profile-card,
+.profile-options,
+.detail-card,
+.wallet-card {
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-options {
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .profile-card {
+    padding: 15px;
+  }
+
+  .option {
+    padding: 16px;
+  }
+
+  .wallet-card h1 {
+    font-size: 1.6rem;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+<div class="app-container"> 
+<header class="page-header">
+  <button onclick="history.back()">←</button>
+  <h2>Wallet</h2>
+</header>
+
+<section class="wallet-card">
+  <h3>Wallet balance</h3>
+  <h1>₦12,500</h1>
+  <button class="fund">Fund wallet</button>
+</section>
+
+<section class="detail-card">
+  <h4>Recent transactions</h4>
+  <div class="row">
+    <span>Wallet funding</span>
+    <strong>₦5,000</strong>
+  </div>
+  <div class="row">
+    <span>Food order</span>
+    <strong>-₦2,500</strong>
+  </div>
+</section>
+</div>
+</body>
+</html>
