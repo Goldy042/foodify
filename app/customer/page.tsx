@@ -22,6 +22,7 @@ import {
 } from "@/app/lib/constants";
 import { SelectField } from "@/components/forms/select-field";
 import { MultiCheckboxGroup } from "@/components/forms/multi-checkbox-group";
+import { AppHeader } from "@/components/app/app-header";
 
 function formatCuisineList(cuisineTypes: readonly string[]) {
   if (cuisineTypes.length === 0) {
@@ -109,6 +110,7 @@ export default async function CustomerDashboardPage({
 
   return (
     <div className="min-h-screen bg-background">
+      <AppHeader />
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
         <header className="space-y-3">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
@@ -124,58 +126,77 @@ export default async function CustomerDashboardPage({
                 checkout flow will connect here next.
               </p>
             </div>
-            <Button asChild variant="outline">
-              <Link href="/customer/orders">View orders</Link>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline">
+                <Link href="/customer/orders">View orders</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/customer/profile">Edit profile</Link>
+              </Button>
+            </div>
           </div>
         </header>
 
         <Card className="border-border/70 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-xl">Filters</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form method="GET" className="grid gap-6 md:grid-cols-3">
-              <div className="space-y-2">
-                <Label>Area</Label>
-                <SelectField
-                  name="area"
-                  options={areaOptions}
-                  placeholder="All areas"
-                  defaultValue={selectedArea}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Prep time</Label>
-                <SelectField
-                  name="prep"
-                  options={prepTimeOptions}
-                  placeholder="Any prep time"
-                  defaultValue={selectedPrepTime}
-                />
-              </div>
-              <div className="space-y-2 md:col-span-3">
-                <Label>Cuisine</Label>
-                <MultiCheckboxGroup
-                  name="cuisine"
-                  options={cuisineTypes}
-                  defaultValues={selectedCuisineLabels}
-                  columns={3}
-                />
-              </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:col-span-3">
-                <p className="text-xs text-muted-foreground">
-                  Filters apply instantly when you submit the form.
+          <details className="group" open={hasFilters}>
+            <summary className="flex cursor-pointer items-center justify-between gap-4 rounded-lg bg-primary px-6 py-4 text-primary-foreground">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-primary-foreground/80">
+                  Filters
                 </p>
-                <div className="flex gap-3">
-                  <Button type="submit">Apply filters</Button>
-                  <Button asChild variant="outline">
-                    <Link href="/customer">Clear filters</Link>
-                  </Button>
-                </div>
+                <p className="text-base font-semibold">
+                  Refine restaurants
+                </p>
               </div>
-            </form>
-          </CardContent>
+              <span className="rounded-full border border-primary-foreground/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
+                {hasFilters
+                  ? `${selectedCuisineLabels.length + (selectedArea ? 1 : 0) + (selectedPrepTime ? 1 : 0)} active`
+                  : "Collapsed"}
+              </span>
+            </summary>
+            <div className="px-6 pb-6 pt-5">
+              <form method="GET" className="grid gap-6 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Area</Label>
+                  <SelectField
+                    name="area"
+                    options={areaOptions}
+                    placeholder="All areas"
+                    defaultValue={selectedArea}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Prep time</Label>
+                  <SelectField
+                    name="prep"
+                    options={prepTimeOptions}
+                    placeholder="Any prep time"
+                    defaultValue={selectedPrepTime}
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-3">
+                  <Label>Cuisine</Label>
+                  <MultiCheckboxGroup
+                    name="cuisine"
+                    options={cuisineTypes}
+                    defaultValues={selectedCuisineLabels}
+                    columns={3}
+                  />
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:col-span-3">
+                  <p className="text-xs text-muted-foreground">
+                    Filters apply instantly when you submit the form.
+                  </p>
+                  <div className="flex gap-3">
+                    <Button type="submit">Apply filters</Button>
+                    <Button asChild variant="outline">
+                      <Link href="/customer">Clear filters</Link>
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </details>
         </Card>
 
         {restaurants.length === 0 ? (

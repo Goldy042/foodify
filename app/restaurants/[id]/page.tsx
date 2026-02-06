@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AppHeader } from "@/components/app/app-header";
 import { getUserFromSession } from "@/app/lib/session";
 import {
   areaEnumToLabel,
@@ -59,6 +60,7 @@ export default async function RestaurantDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <AppHeader />
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
         <header className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">

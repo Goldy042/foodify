@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AppHeader } from "@/components/app/app-header";
 import { getUserFromSession } from "@/app/lib/session";
 import { Role } from "@/app/generated/prisma/client";
 import { getCustomerOrder, measurementEnumToLabel } from "@/app/lib/db";
@@ -81,6 +82,7 @@ export default async function CustomerOrderPage({
 
   return (
     <div className="min-h-screen bg-background">
+      <AppHeader />
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-16">
         {resolvedSearchParams.placed ? <ClearCartOnLoad /> : null}
         <header className="space-y-3">

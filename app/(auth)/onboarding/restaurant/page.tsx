@@ -25,6 +25,7 @@ import {
   updateUser,
   upsertRestaurantProfile,
 } from "@/app/lib/db";
+import { AppHeader } from "@/components/app/app-header";
 
 const errorMessages: Record<string, string> = {
   missing: "Please fill in all required fields.",
@@ -167,6 +168,7 @@ export default async function RestaurantOnboardingPage({
 
   return (
     <div className="min-h-screen bg-background">
+      <AppHeader />
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-16">
         <header className="space-y-3">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
