@@ -141,7 +141,10 @@ export default async function CustomerOrderPage({
                 {item.modifiers.length > 0 ? (
                   <p className="text-xs text-muted-foreground">
                     {item.modifiers
-                      .map((modifier) => modifier.modifierOption.name)
+                      .map(
+                        (modifier) =>
+                          `${modifier.modifierOption.name} x${modifier.quantity}`
+                      )
                       .join(", ")}
                   </p>
                 ) : null}

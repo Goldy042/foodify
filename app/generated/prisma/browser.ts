@@ -43,6 +43,11 @@ export type CustomerProfile = Prisma.CustomerProfileModel
  */
 export type RestaurantProfile = Prisma.RestaurantProfileModel
 /**
+ * Model RestaurantStaffMember
+ * 
+ */
+export type RestaurantStaffMember = Prisma.RestaurantStaffMemberModel
+/**
  * Model DriverProfile
  * 
  */

@@ -8,6 +8,11 @@ import { getUserFromSession } from "@/app/lib/session";
 import { getCustomerProfile } from "@/app/lib/db";
 import { calculateFees } from "@/app/lib/pricing";
 import { generateToken } from "@/app/lib/auth";
+import {
+  calculateDistanceKm,
+  DEFAULT_SERVICE_RADIUS_KM,
+  isRestaurantOpenNow,
+} from "@/app/lib/restaurant-availability";
 
 type CartPayload = {
   restaurantId: string;
@@ -15,7 +20,7 @@ type CartPayload = {
     menuItemId: string;
     measurementId: string;
     quantity: number;
-    modifiers?: Array<{ id: string }>;
+    modifiers?: Array<{ id: string; quantity: number }>;
   }>;
 };
 
@@ -23,6 +28,9 @@ type ParsedCartResult = {
   cart: CartPayload;
   hadInvalidItems: boolean;
 };
+
+const MIN_CART_QUANTITY = 1;
+const MAX_CART_QUANTITY = 99;
 
 function generateDeliveryCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
@@ -71,13 +79,23 @@ function parseCart(raw: string): ParsedCartResult | null {
       if (
         !isNonEmptyString(candidate.menuItemId) ||
         !isNonEmptyString(candidate.measurementId) ||
+        typeof candidate.quantity !== "number" ||
         !Number.isFinite(candidate.quantity)
       ) {
         hadInvalidItems = true;
         continue;
       }
 
-      let modifiers: Array<{ id: string }> | undefined;
+      const parsedQuantity = Math.floor(candidate.quantity);
+      if (
+        parsedQuantity < MIN_CART_QUANTITY ||
+        parsedQuantity > MAX_CART_QUANTITY
+      ) {
+        hadInvalidItems = true;
+        continue;
+      }
+
+      let modifiers: Array<{ id: string; quantity: number }> | undefined;
       if (Array.isArray(candidate.modifiers)) {
         const validModifiers = candidate.modifiers
           .filter(
@@ -86,22 +104,47 @@ function parseCart(raw: string): ParsedCartResult | null {
               typeof modifier === "object" &&
               isNonEmptyString((modifier as { id?: unknown }).id)
           )
-          .map((modifier) => ({ id: (modifier as { id: string }).id }));
+          .map((modifier) => {
+            const parsedModifier = modifier as {
+              id: string;
+              quantity?: unknown;
+            };
+            const modifierQuantity =
+              typeof parsedModifier.quantity === "number" &&
+              Number.isFinite(parsedModifier.quantity)
+                ? Math.floor(parsedModifier.quantity)
+                : 1;
+            return { id: parsedModifier.id, quantity: modifierQuantity };
+          })
+          .filter(
+            (modifier) =>
+              modifier.quantity >= MIN_CART_QUANTITY &&
+              modifier.quantity <= MAX_CART_QUANTITY
+          );
 
         if (validModifiers.length !== candidate.modifiers.length) {
           hadInvalidItems = true;
         }
         if (validModifiers.length > 0) {
+          const uniqueModifierCount = new Set(
+            validModifiers.map((modifier) => modifier.id)
+          ).size;
+          if (uniqueModifierCount !== validModifiers.length) {
+            hadInvalidItems = true;
+            continue;
+          }
           modifiers = validModifiers;
         }
       } else if (candidate.modifiers !== undefined) {
         hadInvalidItems = true;
       }
 
+      modifiers = modifiers?.sort((a, b) => a.id.localeCompare(b.id));
+
       items.push({
         menuItemId: candidate.menuItemId,
         measurementId: candidate.measurementId,
-        quantity: Number(candidate.quantity),
+        quantity: parsedQuantity,
         ...(modifiers ? { modifiers } : {}),
       });
     }
@@ -166,6 +209,23 @@ export async function placeOrder(formData: FormData) {
   if (!restaurant) {
     redirect("/customer/cart?error=invalid-restaurant");
   }
+  if (
+    !isRestaurantOpenNow({
+      daysOpen: restaurant.daysOpen,
+      openTime: restaurant.openTime,
+      closeTime: restaurant.closeTime,
+    })
+  ) {
+    redirect("/customer/cart?error=restaurant-closed");
+  }
+
+  const distanceKm = calculateDistanceKm(
+    { lat: profile.defaultAddressLat, lng: profile.defaultAddressLng },
+    { lat: restaurant.addressLat, lng: restaurant.addressLng }
+  );
+  if (distanceKm === null || distanceKm > DEFAULT_SERVICE_RADIUS_KM) {
+    redirect("/customer/cart?error=outside-service-area");
+  }
 
   const menuItemIds = Array.from(
     new Set(cart.items.map((item) => item.menuItemId))
@@ -194,6 +254,9 @@ export async function placeOrder(formData: FormData) {
     if (!menuItem) {
       redirect("/customer/cart?error=invalid-item");
     }
+    if (!menuItem.isAvailable) {
+      redirect("/customer/cart?error=unavailable-item");
+    }
     if (!item.measurementId) {
       redirect("/customer/cart?error=invalid-item");
     }
@@ -206,11 +269,20 @@ export async function placeOrder(formData: FormData) {
     }
 
     const quantity = Number.isFinite(item.quantity)
-      ? Math.max(1, Math.floor(item.quantity))
-      : 1;
+      ? Math.max(
+          MIN_CART_QUANTITY,
+          Math.min(MAX_CART_QUANTITY, Math.floor(item.quantity))
+        )
+      : MIN_CART_QUANTITY;
 
     const selections = item.modifiers?.map((modifier) => modifier.id) ?? [];
+    const quantityBySelection = new Map(
+      (item.modifiers ?? []).map((modifier) => [modifier.id, modifier.quantity])
+    );
     const selectionSet = new Set(selections);
+    if (selectionSet.size !== selections.length) {
+      redirect("/customer/cart?error=invalid-modifier");
+    }
     const matchedOptionIds = new Set<string>();
 
     const selectedOptions = menuItem.modifierGroups.flatMap((group) => {
@@ -226,6 +298,9 @@ export async function placeOrder(formData: FormData) {
       }
       return options.map((option) => ({
         id: option.id,
+        quantity: quantityBySelection.get(option.id) ?? 1,
+        maxQuantity: option.maxQuantity,
+        includedQuantity: option.includedQuantity,
         priceDelta: Number(option.priceDelta),
       }));
     });
@@ -235,7 +310,14 @@ export async function placeOrder(formData: FormData) {
     }
 
     const modifiersTotal = selectedOptions.reduce(
-      (sum, option) => sum + option.priceDelta,
+      (sum, option) => {
+        const optionQuantity = Math.max(1, Math.floor(option.quantity));
+        if (optionQuantity > option.maxQuantity) {
+          redirect("/customer/cart?error=invalid-modifier");
+        }
+        const extraQuantity = Math.max(0, optionQuantity - option.includedQuantity);
+        return sum + extraQuantity * option.priceDelta;
+      },
       0
     );
     const unitPrice = Number(measurement.basePrice);
@@ -255,6 +337,7 @@ export async function placeOrder(formData: FormData) {
       modifiers: {
         create: selectedOptions.map((option) => ({
           modifierOptionId: option.id,
+          quantity: Math.max(1, Math.floor(option.quantity)),
           priceDelta: toDecimal(option.priceDelta),
         })),
       },

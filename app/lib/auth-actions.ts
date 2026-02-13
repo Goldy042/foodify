@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
-import { Prisma } from "@/app/generated/prisma/client";
+import { Prisma, Role, AccountStatus } from "@/app/generated/prisma/client";
 
 import { signupRoleOptions } from "./constants";
 import { hashPassword, verifyPassword } from "./auth";
@@ -95,8 +95,30 @@ function logSigninError(error: unknown, email: string) {
   console.error("[signin] unexpected error", { error, email });
 }
 
-function roleToPath(role: string) {
-  return role.toLowerCase();
+function getPostLoginRedirectPath(input: { role: Role; status: AccountStatus }) {
+  if (input.role === Role.CUSTOMER) {
+    if (input.status === "PROFILE_COMPLETED") {
+      return "/restaurants";
+    }
+    return "/onboarding/customer";
+  }
+
+  if (input.role === Role.RESTAURANT) {
+    if (
+      input.status === "PROFILE_COMPLETED" ||
+      input.status === "PENDING_APPROVAL" ||
+      input.status === "APPROVED"
+    ) {
+      return "/restaurant";
+    }
+    return "/onboarding/restaurant";
+  }
+
+  if (input.role === Role.DRIVER) {
+    return "/onboarding/driver";
+  }
+
+  return "/";
 }
 
 export async function signUp(formData: FormData) {
@@ -203,5 +225,5 @@ export async function signIn(formData: FormData) {
     maxAge: 60 * 60 * 24 * 30,
   });
 
-  redirect(`/onboarding/${roleToPath(user.role)}`);
+  redirect(getPostLoginRedirectPath({ role: user.role, status: user.status }));
 }

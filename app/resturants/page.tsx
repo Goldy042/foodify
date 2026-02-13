@@ -1,1 +1,5 @@
-export { default } from "@/components/marketing/restaurant-page";
+import { redirect } from "next/navigation";
+
+export default function LegacyRestaurantsRoute() {
+  redirect("/for-restaurants");
+}

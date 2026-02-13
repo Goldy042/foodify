@@ -287,6 +287,40 @@ export type EnumBankNameWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumBankNameFilter<$PrismaModel>
 }
 
+export type EnumRestaurantStaffRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestaurantStaffRole | Prisma.EnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.RestaurantStaffRole[] | Prisma.ListEnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestaurantStaffRole[] | Prisma.ListEnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestaurantStaffRoleFilter<$PrismaModel> | $Enums.RestaurantStaffRole
+}
+
+export type EnumRestaurantStaffStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestaurantStaffStatus | Prisma.EnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RestaurantStaffStatus[] | Prisma.ListEnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestaurantStaffStatus[] | Prisma.ListEnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestaurantStaffStatusFilter<$PrismaModel> | $Enums.RestaurantStaffStatus
+}
+
+export type EnumRestaurantStaffRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestaurantStaffRole | Prisma.EnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.RestaurantStaffRole[] | Prisma.ListEnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestaurantStaffRole[] | Prisma.ListEnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestaurantStaffRoleWithAggregatesFilter<$PrismaModel> | $Enums.RestaurantStaffRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRestaurantStaffRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRestaurantStaffRoleFilter<$PrismaModel>
+}
+
+export type EnumRestaurantStaffStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestaurantStaffStatus | Prisma.EnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RestaurantStaffStatus[] | Prisma.ListEnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestaurantStaffStatus[] | Prisma.ListEnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestaurantStaffStatusWithAggregatesFilter<$PrismaModel> | $Enums.RestaurantStaffStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRestaurantStaffStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRestaurantStaffStatusFilter<$PrismaModel>
+}
+
 export type EnumVehicleTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.VehicleType | Prisma.EnumVehicleTypeFieldRefInput<$PrismaModel>
   in?: $Enums.VehicleType[] | Prisma.ListEnumVehicleTypeFieldRefInput<$PrismaModel>
@@ -759,6 +793,40 @@ export type NestedEnumBankNameWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumBankNameFilter<$PrismaModel>
   _max?: Prisma.NestedEnumBankNameFilter<$PrismaModel>
+}
+
+export type NestedEnumRestaurantStaffRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestaurantStaffRole | Prisma.EnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.RestaurantStaffRole[] | Prisma.ListEnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestaurantStaffRole[] | Prisma.ListEnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestaurantStaffRoleFilter<$PrismaModel> | $Enums.RestaurantStaffRole
+}
+
+export type NestedEnumRestaurantStaffStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestaurantStaffStatus | Prisma.EnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RestaurantStaffStatus[] | Prisma.ListEnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestaurantStaffStatus[] | Prisma.ListEnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestaurantStaffStatusFilter<$PrismaModel> | $Enums.RestaurantStaffStatus
+}
+
+export type NestedEnumRestaurantStaffRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestaurantStaffRole | Prisma.EnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.RestaurantStaffRole[] | Prisma.ListEnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestaurantStaffRole[] | Prisma.ListEnumRestaurantStaffRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestaurantStaffRoleWithAggregatesFilter<$PrismaModel> | $Enums.RestaurantStaffRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRestaurantStaffRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRestaurantStaffRoleFilter<$PrismaModel>
+}
+
+export type NestedEnumRestaurantStaffStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RestaurantStaffStatus | Prisma.EnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RestaurantStaffStatus[] | Prisma.ListEnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RestaurantStaffStatus[] | Prisma.ListEnumRestaurantStaffStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRestaurantStaffStatusWithAggregatesFilter<$PrismaModel> | $Enums.RestaurantStaffStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRestaurantStaffStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRestaurantStaffStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumVehicleTypeFilter<$PrismaModel = never> = {

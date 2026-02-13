@@ -51,17 +51,17 @@ export async function main() {
   const restaurantProfileId = restaurantUser.restaurantProfile?.id;
 
   if (restaurantProfileId) {
-    const category = await prisma.menuCategory.create({
+    const riceCategory = await prisma.menuCategory.create({
       data: {
         restaurantId: restaurantProfileId,
         category: "RICE_DISHES",
       },
     });
 
-    const item = await prisma.menuItem.create({
+    const jollofItem = await prisma.menuItem.create({
       data: {
         restaurantId: restaurantProfileId,
-        categoryId: category.id,
+        categoryId: riceCategory.id,
         name: "Jollof Rice",
         description: "Smoky jollof rice with grilled chicken.",
         baseImageUrl: "https://example.com/jollof.png",
@@ -70,7 +70,7 @@ export async function main() {
 
     await prisma.menuItemMeasurement.create({
       data: {
-        menuItemId: item.id,
+        menuItemId: jollofItem.id,
         unit: "PLATE",
         basePrice: new Prisma.Decimal("2500.00"),
       },
@@ -78,7 +78,7 @@ export async function main() {
 
     await prisma.modifierGroup.create({
       data: {
-        menuItemId: item.id,
+        menuItemId: jollofItem.id,
         name: "Protein",
         isRequired: true,
         maxSelections: 1,
@@ -88,6 +88,109 @@ export async function main() {
             { name: "Beef", priceDelta: new Prisma.Decimal("400.00") },
             { name: "Fish", priceDelta: new Prisma.Decimal("450.00") },
             { name: "Egg", priceDelta: new Prisma.Decimal("200.00") },
+          ],
+        },
+      },
+    });
+
+    const swallowCategory = await prisma.menuCategory.create({
+      data: {
+        restaurantId: restaurantProfileId,
+        category: "SWALLOW_SOUP",
+      },
+    });
+
+    const egusiItem = await prisma.menuItem.create({
+      data: {
+        restaurantId: restaurantProfileId,
+        categoryId: swallowCategory.id,
+        name: "Egusi Soup + Fufu",
+        description:
+          "500g egusi soup with default 2 wraps of fufu. Add wraps, protein, and drinks.",
+        baseImageUrl: "https://example.com/egusi.png",
+      },
+    });
+
+    await prisma.menuItemMeasurement.create({
+      data: {
+        menuItemId: egusiItem.id,
+        unit: "BOWL",
+        basePrice: new Prisma.Decimal("3800.00"),
+      },
+    });
+
+    await prisma.modifierGroup.create({
+      data: {
+        menuItemId: egusiItem.id,
+        name: "Fufu Wraps",
+        isRequired: true,
+        maxSelections: 1,
+        options: {
+          create: [
+            {
+              name: "Fufu",
+              priceDelta: new Prisma.Decimal("350.00"),
+              maxQuantity: 6,
+              includedQuantity: 2,
+              defaultQuantity: 2,
+            },
+          ],
+        },
+      },
+    });
+
+    await prisma.modifierGroup.create({
+      data: {
+        menuItemId: egusiItem.id,
+        name: "Protein Add-on",
+        isRequired: false,
+        maxSelections: 2,
+        options: {
+          create: [
+            {
+              name: "Beef",
+              priceDelta: new Prisma.Decimal("600.00"),
+              maxQuantity: 3,
+            },
+            {
+              name: "Goat meat",
+              priceDelta: new Prisma.Decimal("750.00"),
+              maxQuantity: 2,
+            },
+            {
+              name: "Fish",
+              priceDelta: new Prisma.Decimal("700.00"),
+              maxQuantity: 2,
+            },
+          ],
+        },
+      },
+    });
+
+    await prisma.modifierGroup.create({
+      data: {
+        menuItemId: egusiItem.id,
+        name: "Drink",
+        isRequired: false,
+        maxSelections: 1,
+        options: {
+          create: [
+            {
+              name: "Malt",
+              priceDelta: new Prisma.Decimal("300.00"),
+              maxQuantity: 1,
+              defaultQuantity: 1,
+            },
+            {
+              name: "Water",
+              priceDelta: new Prisma.Decimal("0.00"),
+              maxQuantity: 1,
+            },
+            {
+              name: "Coke",
+              priceDelta: new Prisma.Decimal("250.00"),
+              maxQuantity: 1,
+            },
           ],
         },
       },

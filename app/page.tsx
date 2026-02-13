@@ -31,7 +31,7 @@ const roleCards = [
     description:
       "Serve more customers with structured menus and a low 5% fee.",
     icon: Store,
-    href: "/resturants",
+    href: "/for-restaurants",
   },
   {
     title: "Riders",

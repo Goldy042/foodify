@@ -194,3 +194,22 @@ export const PayoutStatus = {
 } as const
 
 export type PayoutStatus = (typeof PayoutStatus)[keyof typeof PayoutStatus]
+
+
+export const RestaurantStaffRole = {
+  MANAGER: 'MANAGER',
+  SUPERVISOR: 'SUPERVISOR',
+  KITCHEN: 'KITCHEN',
+  CASHIER: 'CASHIER'
+} as const
+
+export type RestaurantStaffRole = (typeof RestaurantStaffRole)[keyof typeof RestaurantStaffRole]
+
+
+export const RestaurantStaffStatus = {
+  INVITED: 'INVITED',
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED'
+} as const
+
+export type RestaurantStaffStatus = (typeof RestaurantStaffStatus)[keyof typeof RestaurantStaffStatus]

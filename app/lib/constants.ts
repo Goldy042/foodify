@@ -58,6 +58,13 @@ export const prepTimeOptions = [
 
 export const vehicleTypes = ["Bike", "Car"] as const;
 
+export const restaurantStaffRoleOptions = [
+  "Manager",
+  "Supervisor",
+  "Kitchen",
+  "Cashier",
+] as const;
+
 export const dayOptions = [
   "Monday",
   "Tuesday",

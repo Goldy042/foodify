@@ -56,6 +56,7 @@ export const ModelName = {
   Session: 'Session',
   CustomerProfile: 'CustomerProfile',
   RestaurantProfile: 'RestaurantProfile',
+  RestaurantStaffMember: 'RestaurantStaffMember',
   DriverProfile: 'DriverProfile',
   MenuCategory: 'MenuCategory',
   MenuItem: 'MenuItem',
@@ -162,6 +163,20 @@ export const RestaurantProfileScalarFieldEnum = {
 export type RestaurantProfileScalarFieldEnum = (typeof RestaurantProfileScalarFieldEnum)[keyof typeof RestaurantProfileScalarFieldEnum]
 
 
+export const RestaurantStaffMemberScalarFieldEnum = {
+  id: 'id',
+  restaurantId: 'restaurantId',
+  fullName: 'fullName',
+  email: 'email',
+  role: 'role',
+  status: 'status',
+  invitedAt: 'invitedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RestaurantStaffMemberScalarFieldEnum = (typeof RestaurantStaffMemberScalarFieldEnum)[keyof typeof RestaurantStaffMemberScalarFieldEnum]
+
+
 export const DriverProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -233,7 +248,10 @@ export const ModifierOptionScalarFieldEnum = {
   id: 'id',
   modifierGroupId: 'modifierGroupId',
   name: 'name',
-  priceDelta: 'priceDelta'
+  priceDelta: 'priceDelta',
+  maxQuantity: 'maxQuantity',
+  includedQuantity: 'includedQuantity',
+  defaultQuantity: 'defaultQuantity'
 } as const
 
 export type ModifierOptionScalarFieldEnum = (typeof ModifierOptionScalarFieldEnum)[keyof typeof ModifierOptionScalarFieldEnum]
@@ -277,6 +295,7 @@ export const OrderItemModifierSelectionScalarFieldEnum = {
   id: 'id',
   orderItemId: 'orderItemId',
   modifierOptionId: 'modifierOptionId',
+  quantity: 'quantity',
   priceDelta: 'priceDelta'
 } as const
 

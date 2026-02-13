@@ -7,6 +7,8 @@ import {
   MenuCategoryType,
   PrepTimeRange,
   Role,
+  RestaurantStaffRole,
+  RestaurantStaffStatus,
   VehicleType,
 } from "@/app/generated/prisma/client";
 
@@ -111,6 +113,17 @@ export const menuCategoryEnumToLabel: Record<MenuCategoryType, string> = {
   [MenuCategoryType.COMBOS]: "Combos",
 };
 
+export const menuCategoryLabelToEnum = {
+  "Rice Dishes": MenuCategoryType.RICE_DISHES,
+  "Swallow & Soup": MenuCategoryType.SWALLOW_SOUP,
+  Pasta: MenuCategoryType.PASTA,
+  Grills: MenuCategoryType.GRILLS,
+  Snacks: MenuCategoryType.SNACKS,
+  Drinks: MenuCategoryType.DRINKS,
+  Desserts: MenuCategoryType.DESSERTS,
+  Combos: MenuCategoryType.COMBOS,
+} as const;
+
 export const measurementEnumToLabel: Record<MeasurementUnit, string> = {
   [MeasurementUnit.PLATE]: "Plate",
   [MeasurementUnit.HALF_PLATE]: "Half Plate",
@@ -121,6 +134,17 @@ export const measurementEnumToLabel: Record<MeasurementUnit, string> = {
   [MeasurementUnit.CL_60]: "60cl",
   [MeasurementUnit.L_1]: "1L",
 };
+
+export const measurementLabelToEnum = {
+  Plate: MeasurementUnit.PLATE,
+  "Half Plate": MeasurementUnit.HALF_PLATE,
+  Bowl: MeasurementUnit.BOWL,
+  "1kg": MeasurementUnit.KG_1,
+  "2kg": MeasurementUnit.KG_2,
+  "50cl": MeasurementUnit.CL_50,
+  "60cl": MeasurementUnit.CL_60,
+  "1L": MeasurementUnit.L_1,
+} as const;
 
 export const bankLabelToEnum = {
   "Access Bank": BankName.ACCESS_BANK,
@@ -188,6 +212,29 @@ export const vehicleLabelToEnum = {
 export const vehicleEnumToLabel: Record<VehicleType, string> = {
   [VehicleType.BIKE]: "Bike",
   [VehicleType.CAR]: "Car",
+};
+
+export const restaurantStaffRoleLabelToEnum = {
+  Manager: RestaurantStaffRole.MANAGER,
+  Supervisor: RestaurantStaffRole.SUPERVISOR,
+  Kitchen: RestaurantStaffRole.KITCHEN,
+  Cashier: RestaurantStaffRole.CASHIER,
+} as const;
+
+export const restaurantStaffRoleEnumToLabel: Record<RestaurantStaffRole, string> = {
+  [RestaurantStaffRole.MANAGER]: "Manager",
+  [RestaurantStaffRole.SUPERVISOR]: "Supervisor",
+  [RestaurantStaffRole.KITCHEN]: "Kitchen",
+  [RestaurantStaffRole.CASHIER]: "Cashier",
+};
+
+export const restaurantStaffStatusEnumToLabel: Record<
+  RestaurantStaffStatus,
+  string
+> = {
+  [RestaurantStaffStatus.INVITED]: "Invited",
+  [RestaurantStaffStatus.ACTIVE]: "Active",
+  [RestaurantStaffStatus.DISABLED]: "Disabled",
 };
 
 export function mapAreas(labels: readonly string[]) {

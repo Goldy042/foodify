@@ -17,7 +17,7 @@ export async function createVerificationToken(userId: string) {
 export async function consumeVerificationToken(token: string) {
   const record = await prisma.verificationToken.findUnique({
     where: { token },
-    include: { user: true },
+    select: { id: true, userId: true, usedAt: true, expiresAt: true },
   });
 
   if (!record) {
@@ -30,15 +30,23 @@ export async function consumeVerificationToken(token: string) {
     return null;
   }
 
-  const updated = await prisma.$transaction(async (tx) => {
-    await tx.verificationToken.update({
-      where: { id: record.id },
-      data: { usedAt: new Date() },
-    });
-    return tx.user.update({
-      where: { id: record.userId },
-      data: { status: "EMAIL_VERIFIED" },
-    });
+  const now = new Date();
+  const consumed = await prisma.verificationToken.updateMany({
+    where: {
+      id: record.id,
+      usedAt: null,
+      expiresAt: { gt: now },
+    },
+    data: { usedAt: now },
+  });
+
+  if (consumed.count === 0) {
+    return null;
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: record.userId },
+    data: { status: "EMAIL_VERIFIED" },
   });
 
   return updated;

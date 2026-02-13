@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
+  CART_UPDATED_EVENT,
+  MAX_CART_QUANTITY,
+  MIN_CART_QUANTITY,
   Cart,
   clearCart,
   getCart,
@@ -23,8 +26,26 @@ export function CartClient() {
   const [cart, setCart] = React.useState<Cart | null>(null);
 
   React.useEffect(() => {
-    setCart(getCart());
+    const syncCart = () => {
+      setCart(getCart());
+    };
+
+    syncCart();
+    window.addEventListener("storage", syncCart);
+    window.addEventListener(CART_UPDATED_EVENT, syncCart);
+    return () => {
+      window.removeEventListener("storage", syncCart);
+      window.removeEventListener(CART_UPDATED_EVENT, syncCart);
+    };
   }, []);
+
+  const handleQuantityUpdate = React.useCallback(
+    (lineId: string, quantity: number) => {
+      const next = updateCartItemQuantity(lineId, quantity);
+      setCart(next);
+    },
+    []
+  );
 
   const totals = React.useMemo(() => getCartTotals(cart), [cart]);
   const cartPayload = React.useMemo(
@@ -43,7 +64,7 @@ export function CartClient() {
             Add items from a restaurant menu to get started.
           </p>
           <Button asChild>
-            <Link href="/customer">Browse restaurants</Link>
+            <Link href="/restaurants">Browse restaurants</Link>
           </Button>
         </CardContent>
       </Card>
@@ -84,26 +105,72 @@ export function CartClient() {
                   </p>
                   {item.modifiers.length > 0 ? (
                     <p className="text-xs text-muted-foreground">
-                      {item.modifiers.map((modifier) => modifier.name).join(", ")}
+                      {item.modifiers
+                        .map((modifier) => {
+                          const extraQty = Math.max(
+                            0,
+                            modifier.quantity - modifier.includedQuantity
+                          );
+                          const priceLabel =
+                            extraQty > 0
+                              ? ` (+${formatCurrency(
+                                  extraQty * modifier.priceDelta
+                                )})`
+                              : "";
+                          return `${modifier.name} x${modifier.quantity}${priceLabel}`;
+                        })
+                        .join(", ")}
                     </p>
                   ) : null}
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleQuantityUpdate(item.lineId, item.quantity - 1)
+                      }
+                    >
+                      -
+                    </Button>
                     <Input
                       type="number"
-                      min={1}
+                      min={0}
+                      max={MAX_CART_QUANTITY}
                       className="w-20"
                       value={item.quantity}
                       onChange={(event) => {
                         const value = Number(event.target.value);
-                        const next = updateCartItemQuantity(
+                        handleQuantityUpdate(
                           item.lineId,
                           Number.isFinite(value) ? value : item.quantity
                         );
-                        setCart(next);
+                      }}
+                      onBlur={(event) => {
+                        const value = Number(event.target.value);
+                        handleQuantityUpdate(
+                          item.lineId,
+                          Number.isFinite(value)
+                            ? Math.min(
+                                MAX_CART_QUANTITY,
+                                Math.max(MIN_CART_QUANTITY, value)
+                              )
+                            : item.quantity
+                        );
                       }}
                     />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleQuantityUpdate(item.lineId, item.quantity + 1)
+                      }
+                    >
+                      +
+                    </Button>
                     <span className="text-xs text-muted-foreground">
                       {formatCurrency(getLineTotal(item))}
                     </span>
@@ -112,8 +179,7 @@ export function CartClient() {
                     type="button"
                     variant="ghost"
                     onClick={() => {
-                      const next = removeCartItem(item.lineId);
-                      setCart(next);
+                      setCart(removeCartItem(item.lineId));
                     }}
                   >
                     Remove

@@ -6,11 +6,14 @@ import { Role } from "@/app/generated/prisma/client";
 
 const roleNav: Record<Role, Array<{ label: string; href: string }>> = {
   CUSTOMER: [
-    { label: "Dashboard", href: "/customer" },
+    { label: "Restaurants", href: "/restaurants" },
     { label: "Orders", href: "/customer/orders" },
     { label: "Profile", href: "/customer/profile" },
   ],
-  RESTAURANT: [{ label: "Onboarding", href: "/onboarding/restaurant" }],
+  RESTAURANT: [
+    { label: "Workspace", href: "/restaurant" },
+    { label: "Onboarding", href: "/onboarding/restaurant" },
+  ],
   DRIVER: [{ label: "Onboarding", href: "/onboarding/driver" }],
   ADMIN: [],
 };
@@ -51,6 +54,10 @@ export async function AppHeader() {
           {user.role === Role.CUSTOMER ? (
             <Button asChild size="sm">
               <Link href="/customer/cart">Cart</Link>
+            </Button>
+          ) : user.role === Role.RESTAURANT ? (
+            <Button asChild size="sm" variant="outline">
+              <Link href="/restaurant">Go to workspace</Link>
             </Button>
           ) : (
             <Button asChild size="sm" variant="outline">

@@ -83,26 +83,7 @@ export default async function RestaurantOnboardingPage({
     : null;
 
   if (user.status === "PENDING_APPROVAL" || user.status === "APPROVED") {
-    return (
-      <div className="min-h-screen bg-background">
-        <main className="mx-auto flex min-h-screen w-full max-w-xl items-center px-6 py-16">
-          <Card className="w-full border-border/70 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-2xl">
-                {user.status === "APPROVED"
-                  ? "Restaurant approved"
-                  : "Restaurant under review"}
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {user.status === "APPROVED"
-                  ? "Your restaurant is live and visible to customers."
-                  : "Your profile is pending approval. We will notify you once reviewed."}
-              </p>
-            </CardHeader>
-          </Card>
-        </main>
-      </div>
-    );
+    redirect("/restaurant");
   }
 
   async function completeRestaurantProfile(formData: FormData) {

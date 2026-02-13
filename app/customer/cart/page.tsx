@@ -10,7 +10,13 @@ const errorMessages: Record<string, string> = {
   "empty-cart": "Your cart is empty. Add items before placing an order.",
   "invalid-restaurant":
     "That restaurant is no longer available. Please start a new cart.",
+  "restaurant-closed":
+    "This restaurant is currently closed. You can place your order during open hours.",
+  "outside-service-area":
+    "This restaurant is outside your delivery service area. Please choose a closer restaurant.",
   "invalid-item": "One or more items are no longer available.",
+  "unavailable-item":
+    "One or more selected items are currently unavailable. Please review your cart.",
   "invalid-measurement": "Please reselect item sizes before checking out.",
   "missing-modifier": "Select required modifiers before placing the order.",
   "invalid-modifier": "Modifier selections are not valid for an item.",
@@ -42,7 +48,7 @@ export default async function CustomerCartPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <AppHeader /> 
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
         <header className="space-y-3">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">

@@ -28,10 +28,16 @@ export type AggregateModifierOption = {
 
 export type ModifierOptionAvgAggregateOutputType = {
   priceDelta: runtime.Decimal | null
+  maxQuantity: number | null
+  includedQuantity: number | null
+  defaultQuantity: number | null
 }
 
 export type ModifierOptionSumAggregateOutputType = {
   priceDelta: runtime.Decimal | null
+  maxQuantity: number | null
+  includedQuantity: number | null
+  defaultQuantity: number | null
 }
 
 export type ModifierOptionMinAggregateOutputType = {
@@ -39,6 +45,9 @@ export type ModifierOptionMinAggregateOutputType = {
   modifierGroupId: string | null
   name: string | null
   priceDelta: runtime.Decimal | null
+  maxQuantity: number | null
+  includedQuantity: number | null
+  defaultQuantity: number | null
 }
 
 export type ModifierOptionMaxAggregateOutputType = {
@@ -46,6 +55,9 @@ export type ModifierOptionMaxAggregateOutputType = {
   modifierGroupId: string | null
   name: string | null
   priceDelta: runtime.Decimal | null
+  maxQuantity: number | null
+  includedQuantity: number | null
+  defaultQuantity: number | null
 }
 
 export type ModifierOptionCountAggregateOutputType = {
@@ -53,16 +65,25 @@ export type ModifierOptionCountAggregateOutputType = {
   modifierGroupId: number
   name: number
   priceDelta: number
+  maxQuantity: number
+  includedQuantity: number
+  defaultQuantity: number
   _all: number
 }
 
 
 export type ModifierOptionAvgAggregateInputType = {
   priceDelta?: true
+  maxQuantity?: true
+  includedQuantity?: true
+  defaultQuantity?: true
 }
 
 export type ModifierOptionSumAggregateInputType = {
   priceDelta?: true
+  maxQuantity?: true
+  includedQuantity?: true
+  defaultQuantity?: true
 }
 
 export type ModifierOptionMinAggregateInputType = {
@@ -70,6 +91,9 @@ export type ModifierOptionMinAggregateInputType = {
   modifierGroupId?: true
   name?: true
   priceDelta?: true
+  maxQuantity?: true
+  includedQuantity?: true
+  defaultQuantity?: true
 }
 
 export type ModifierOptionMaxAggregateInputType = {
@@ -77,6 +101,9 @@ export type ModifierOptionMaxAggregateInputType = {
   modifierGroupId?: true
   name?: true
   priceDelta?: true
+  maxQuantity?: true
+  includedQuantity?: true
+  defaultQuantity?: true
 }
 
 export type ModifierOptionCountAggregateInputType = {
@@ -84,6 +111,9 @@ export type ModifierOptionCountAggregateInputType = {
   modifierGroupId?: true
   name?: true
   priceDelta?: true
+  maxQuantity?: true
+  includedQuantity?: true
+  defaultQuantity?: true
   _all?: true
 }
 
@@ -178,6 +208,9 @@ export type ModifierOptionGroupByOutputType = {
   modifierGroupId: string
   name: string
   priceDelta: runtime.Decimal
+  maxQuantity: number
+  includedQuantity: number
+  defaultQuantity: number
   _count: ModifierOptionCountAggregateOutputType | null
   _avg: ModifierOptionAvgAggregateOutputType | null
   _sum: ModifierOptionSumAggregateOutputType | null
@@ -208,6 +241,9 @@ export type ModifierOptionWhereInput = {
   modifierGroupId?: Prisma.UuidFilter<"ModifierOption"> | string
   name?: Prisma.StringFilter<"ModifierOption"> | string
   priceDelta?: Prisma.DecimalFilter<"ModifierOption"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFilter<"ModifierOption"> | number
+  includedQuantity?: Prisma.IntFilter<"ModifierOption"> | number
+  defaultQuantity?: Prisma.IntFilter<"ModifierOption"> | number
   modifierGroup?: Prisma.XOR<Prisma.ModifierGroupScalarRelationFilter, Prisma.ModifierGroupWhereInput>
   orderSelections?: Prisma.OrderItemModifierSelectionListRelationFilter
 }
@@ -217,6 +253,9 @@ export type ModifierOptionOrderByWithRelationInput = {
   modifierGroupId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   priceDelta?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
+  includedQuantity?: Prisma.SortOrder
+  defaultQuantity?: Prisma.SortOrder
   modifierGroup?: Prisma.ModifierGroupOrderByWithRelationInput
   orderSelections?: Prisma.OrderItemModifierSelectionOrderByRelationAggregateInput
 }
@@ -229,6 +268,9 @@ export type ModifierOptionWhereUniqueInput = Prisma.AtLeast<{
   modifierGroupId?: Prisma.UuidFilter<"ModifierOption"> | string
   name?: Prisma.StringFilter<"ModifierOption"> | string
   priceDelta?: Prisma.DecimalFilter<"ModifierOption"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFilter<"ModifierOption"> | number
+  includedQuantity?: Prisma.IntFilter<"ModifierOption"> | number
+  defaultQuantity?: Prisma.IntFilter<"ModifierOption"> | number
   modifierGroup?: Prisma.XOR<Prisma.ModifierGroupScalarRelationFilter, Prisma.ModifierGroupWhereInput>
   orderSelections?: Prisma.OrderItemModifierSelectionListRelationFilter
 }, "id">
@@ -238,6 +280,9 @@ export type ModifierOptionOrderByWithAggregationInput = {
   modifierGroupId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   priceDelta?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
+  includedQuantity?: Prisma.SortOrder
+  defaultQuantity?: Prisma.SortOrder
   _count?: Prisma.ModifierOptionCountOrderByAggregateInput
   _avg?: Prisma.ModifierOptionAvgOrderByAggregateInput
   _max?: Prisma.ModifierOptionMaxOrderByAggregateInput
@@ -253,12 +298,18 @@ export type ModifierOptionScalarWhereWithAggregatesInput = {
   modifierGroupId?: Prisma.UuidWithAggregatesFilter<"ModifierOption"> | string
   name?: Prisma.StringWithAggregatesFilter<"ModifierOption"> | string
   priceDelta?: Prisma.DecimalWithAggregatesFilter<"ModifierOption"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntWithAggregatesFilter<"ModifierOption"> | number
+  includedQuantity?: Prisma.IntWithAggregatesFilter<"ModifierOption"> | number
+  defaultQuantity?: Prisma.IntWithAggregatesFilter<"ModifierOption"> | number
 }
 
 export type ModifierOptionCreateInput = {
   id?: string
   name: string
   priceDelta: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: number
+  includedQuantity?: number
+  defaultQuantity?: number
   modifierGroup: Prisma.ModifierGroupCreateNestedOneWithoutOptionsInput
   orderSelections?: Prisma.OrderItemModifierSelectionCreateNestedManyWithoutModifierOptionInput
 }
@@ -268,6 +319,9 @@ export type ModifierOptionUncheckedCreateInput = {
   modifierGroupId: string
   name: string
   priceDelta: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: number
+  includedQuantity?: number
+  defaultQuantity?: number
   orderSelections?: Prisma.OrderItemModifierSelectionUncheckedCreateNestedManyWithoutModifierOptionInput
 }
 
@@ -275,6 +329,9 @@ export type ModifierOptionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   priceDelta?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  includedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   modifierGroup?: Prisma.ModifierGroupUpdateOneRequiredWithoutOptionsNestedInput
   orderSelections?: Prisma.OrderItemModifierSelectionUpdateManyWithoutModifierOptionNestedInput
 }
@@ -284,6 +341,9 @@ export type ModifierOptionUncheckedUpdateInput = {
   modifierGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   priceDelta?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  includedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderSelections?: Prisma.OrderItemModifierSelectionUncheckedUpdateManyWithoutModifierOptionNestedInput
 }
 
@@ -292,12 +352,18 @@ export type ModifierOptionCreateManyInput = {
   modifierGroupId: string
   name: string
   priceDelta: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: number
+  includedQuantity?: number
+  defaultQuantity?: number
 }
 
 export type ModifierOptionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   priceDelta?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  includedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultQuantity?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ModifierOptionUncheckedUpdateManyInput = {
@@ -305,6 +371,9 @@ export type ModifierOptionUncheckedUpdateManyInput = {
   modifierGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   priceDelta?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  includedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultQuantity?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ModifierOptionListRelationFilter = {
@@ -322,10 +391,16 @@ export type ModifierOptionCountOrderByAggregateInput = {
   modifierGroupId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   priceDelta?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
+  includedQuantity?: Prisma.SortOrder
+  defaultQuantity?: Prisma.SortOrder
 }
 
 export type ModifierOptionAvgOrderByAggregateInput = {
   priceDelta?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
+  includedQuantity?: Prisma.SortOrder
+  defaultQuantity?: Prisma.SortOrder
 }
 
 export type ModifierOptionMaxOrderByAggregateInput = {
@@ -333,6 +408,9 @@ export type ModifierOptionMaxOrderByAggregateInput = {
   modifierGroupId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   priceDelta?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
+  includedQuantity?: Prisma.SortOrder
+  defaultQuantity?: Prisma.SortOrder
 }
 
 export type ModifierOptionMinOrderByAggregateInput = {
@@ -340,10 +418,16 @@ export type ModifierOptionMinOrderByAggregateInput = {
   modifierGroupId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   priceDelta?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
+  includedQuantity?: Prisma.SortOrder
+  defaultQuantity?: Prisma.SortOrder
 }
 
 export type ModifierOptionSumOrderByAggregateInput = {
   priceDelta?: Prisma.SortOrder
+  maxQuantity?: Prisma.SortOrder
+  includedQuantity?: Prisma.SortOrder
+  defaultQuantity?: Prisma.SortOrder
 }
 
 export type ModifierOptionScalarRelationFilter = {
@@ -411,6 +495,9 @@ export type ModifierOptionCreateWithoutModifierGroupInput = {
   id?: string
   name: string
   priceDelta: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: number
+  includedQuantity?: number
+  defaultQuantity?: number
   orderSelections?: Prisma.OrderItemModifierSelectionCreateNestedManyWithoutModifierOptionInput
 }
 
@@ -418,6 +505,9 @@ export type ModifierOptionUncheckedCreateWithoutModifierGroupInput = {
   id?: string
   name: string
   priceDelta: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: number
+  includedQuantity?: number
+  defaultQuantity?: number
   orderSelections?: Prisma.OrderItemModifierSelectionUncheckedCreateNestedManyWithoutModifierOptionInput
 }
 
@@ -455,12 +545,18 @@ export type ModifierOptionScalarWhereInput = {
   modifierGroupId?: Prisma.UuidFilter<"ModifierOption"> | string
   name?: Prisma.StringFilter<"ModifierOption"> | string
   priceDelta?: Prisma.DecimalFilter<"ModifierOption"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFilter<"ModifierOption"> | number
+  includedQuantity?: Prisma.IntFilter<"ModifierOption"> | number
+  defaultQuantity?: Prisma.IntFilter<"ModifierOption"> | number
 }
 
 export type ModifierOptionCreateWithoutOrderSelectionsInput = {
   id?: string
   name: string
   priceDelta: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: number
+  includedQuantity?: number
+  defaultQuantity?: number
   modifierGroup: Prisma.ModifierGroupCreateNestedOneWithoutOptionsInput
 }
 
@@ -469,6 +565,9 @@ export type ModifierOptionUncheckedCreateWithoutOrderSelectionsInput = {
   modifierGroupId: string
   name: string
   priceDelta: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: number
+  includedQuantity?: number
+  defaultQuantity?: number
 }
 
 export type ModifierOptionCreateOrConnectWithoutOrderSelectionsInput = {
@@ -491,6 +590,9 @@ export type ModifierOptionUpdateWithoutOrderSelectionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   priceDelta?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  includedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   modifierGroup?: Prisma.ModifierGroupUpdateOneRequiredWithoutOptionsNestedInput
 }
 
@@ -499,18 +601,27 @@ export type ModifierOptionUncheckedUpdateWithoutOrderSelectionsInput = {
   modifierGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   priceDelta?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  includedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultQuantity?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ModifierOptionCreateManyModifierGroupInput = {
   id?: string
   name: string
   priceDelta: runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: number
+  includedQuantity?: number
+  defaultQuantity?: number
 }
 
 export type ModifierOptionUpdateWithoutModifierGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   priceDelta?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  includedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderSelections?: Prisma.OrderItemModifierSelectionUpdateManyWithoutModifierOptionNestedInput
 }
 
@@ -518,6 +629,9 @@ export type ModifierOptionUncheckedUpdateWithoutModifierGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   priceDelta?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  includedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultQuantity?: Prisma.IntFieldUpdateOperationsInput | number
   orderSelections?: Prisma.OrderItemModifierSelectionUncheckedUpdateManyWithoutModifierOptionNestedInput
 }
 
@@ -525,6 +639,9 @@ export type ModifierOptionUncheckedUpdateManyWithoutModifierGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   priceDelta?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  maxQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  includedQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultQuantity?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -563,6 +680,9 @@ export type ModifierOptionSelect<ExtArgs extends runtime.Types.Extensions.Intern
   modifierGroupId?: boolean
   name?: boolean
   priceDelta?: boolean
+  maxQuantity?: boolean
+  includedQuantity?: boolean
+  defaultQuantity?: boolean
   modifierGroup?: boolean | Prisma.ModifierGroupDefaultArgs<ExtArgs>
   orderSelections?: boolean | Prisma.ModifierOption$orderSelectionsArgs<ExtArgs>
   _count?: boolean | Prisma.ModifierOptionCountOutputTypeDefaultArgs<ExtArgs>
@@ -573,6 +693,9 @@ export type ModifierOptionSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   modifierGroupId?: boolean
   name?: boolean
   priceDelta?: boolean
+  maxQuantity?: boolean
+  includedQuantity?: boolean
+  defaultQuantity?: boolean
   modifierGroup?: boolean | Prisma.ModifierGroupDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["modifierOption"]>
 
@@ -581,6 +704,9 @@ export type ModifierOptionSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   modifierGroupId?: boolean
   name?: boolean
   priceDelta?: boolean
+  maxQuantity?: boolean
+  includedQuantity?: boolean
+  defaultQuantity?: boolean
   modifierGroup?: boolean | Prisma.ModifierGroupDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["modifierOption"]>
 
@@ -589,9 +715,12 @@ export type ModifierOptionSelectScalar = {
   modifierGroupId?: boolean
   name?: boolean
   priceDelta?: boolean
+  maxQuantity?: boolean
+  includedQuantity?: boolean
+  defaultQuantity?: boolean
 }
 
-export type ModifierOptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "modifierGroupId" | "name" | "priceDelta", ExtArgs["result"]["modifierOption"]>
+export type ModifierOptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "modifierGroupId" | "name" | "priceDelta" | "maxQuantity" | "includedQuantity" | "defaultQuantity", ExtArgs["result"]["modifierOption"]>
 export type ModifierOptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   modifierGroup?: boolean | Prisma.ModifierGroupDefaultArgs<ExtArgs>
   orderSelections?: boolean | Prisma.ModifierOption$orderSelectionsArgs<ExtArgs>
@@ -615,6 +744,9 @@ export type $ModifierOptionPayload<ExtArgs extends runtime.Types.Extensions.Inte
     modifierGroupId: string
     name: string
     priceDelta: runtime.Decimal
+    maxQuantity: number
+    includedQuantity: number
+    defaultQuantity: number
   }, ExtArgs["result"]["modifierOption"]>
   composites: {}
 }
@@ -1044,6 +1176,9 @@ export interface ModifierOptionFieldRefs {
   readonly modifierGroupId: Prisma.FieldRef<"ModifierOption", 'String'>
   readonly name: Prisma.FieldRef<"ModifierOption", 'String'>
   readonly priceDelta: Prisma.FieldRef<"ModifierOption", 'Decimal'>
+  readonly maxQuantity: Prisma.FieldRef<"ModifierOption", 'Int'>
+  readonly includedQuantity: Prisma.FieldRef<"ModifierOption", 'Int'>
+  readonly defaultQuantity: Prisma.FieldRef<"ModifierOption", 'Int'>
 }
     
 
