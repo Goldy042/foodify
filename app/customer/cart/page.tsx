@@ -68,7 +68,7 @@ export default async function CustomerCartPage({ searchParams }: PageProps) {
           </div>
         ) : null}
 
-        <Card className="border-border/70 shadow-sm">
+        <Card className="border-border/70 bg-card/80 shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl">Order details</CardTitle>
           </CardHeader>

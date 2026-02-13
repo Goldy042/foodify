@@ -83,26 +83,27 @@ export default async function CustomerOrderPage({
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-16">
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 pb-20 pt-10">
         {resolvedSearchParams.placed ? <ClearCartOnLoad /> : null}
-        <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            Order placed
-          </p>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
+        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/90 via-amber-400/80 to-amber-200/80 p-8 text-primary-foreground shadow-sm">
+          <div className="pointer-events-none absolute -right-10 -top-16 h-36 w-36 rounded-full bg-white/20 blur-3xl" />
+          <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/80">
+                Order placed
+              </p>
               <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
                 Order {order.id.slice(0, 8).toUpperCase()}
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Status: {order.status}
+              <p className="text-sm text-primary-foreground/85">
+                Current status: {order.status}
               </p>
             </div>
-            <Button asChild variant="outline">
+            <Button asChild variant="secondary" className="bg-white/90">
               <Link href="/customer/orders">Back to orders</Link>
             </Button>
           </div>
-        </header>
+        </section>
 
         {errorMessage ? (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -116,7 +117,7 @@ export default async function CustomerOrderPage({
           </div>
         ) : null}
 
-        <Card className="border-border/70 shadow-sm">
+        <Card className="border-border/60 bg-card/80 shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl">Items</CardTitle>
           </CardHeader>
@@ -154,7 +155,7 @@ export default async function CustomerOrderPage({
         </Card>
 
         {showTracking ? (
-          <Card className="border-border/70 shadow-sm">
+          <Card className="border-border/60 bg-card/80 shadow-sm">
             <CardHeader>
               <CardTitle className="text-xl">Order tracking</CardTitle>
             </CardHeader>
@@ -168,7 +169,7 @@ export default async function CustomerOrderPage({
                       className={`flex items-center gap-3 rounded-lg border px-3 py-2 ${
                         isComplete
                           ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                          : "border-border/70 text-muted-foreground"
+                          : "border-border/70 bg-background/60 text-muted-foreground"
                       }`}
                     >
                       <span className="text-xs uppercase tracking-[0.3em]">
@@ -184,7 +185,7 @@ export default async function CustomerOrderPage({
         ) : null}
 
         {showDeliveryCode ? (
-          <Card className="border-border/70 shadow-sm">
+          <Card className="border-border/60 bg-card/80 shadow-sm">
             <CardHeader>
               <CardTitle className="text-xl">Delivery confirmation</CardTitle>
             </CardHeader>
@@ -199,7 +200,7 @@ export default async function CustomerOrderPage({
           </Card>
         ) : null}
 
-        <Card className="border-border/70 shadow-sm">
+        <Card className="border-border/60 bg-card/80 shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl">Payment</CardTitle>
           </CardHeader>
@@ -243,7 +244,7 @@ export default async function CustomerOrderPage({
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 shadow-sm">
+        <Card className="border-border/60 bg-card/80 shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl">Summary</CardTitle>
           </CardHeader>
