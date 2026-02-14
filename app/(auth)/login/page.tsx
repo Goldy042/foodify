@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn } from "@/app/lib/auth-actions";
+import { getPostLoginRedirectPath } from "@/app/lib/role-routing";
+import { getUserFromSession } from "@/app/lib/session";
 
 const highlights = [
   "Resume onboarding instantly",
@@ -24,6 +27,11 @@ type PageProps = {
 };
 
 export default async function LoginPage({ searchParams }: PageProps) {
+  const user = await getUserFromSession();
+  if (user) {
+    redirect(getPostLoginRedirectPath({ role: user.role, status: user.status }));
+  }
+
   const resolvedSearchParams = (await searchParams) ?? {};
   const errorKey = resolvedSearchParams.error;
   const errorMessage = errorKey ? errorMessages[errorKey] : null;

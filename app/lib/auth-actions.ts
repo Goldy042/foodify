@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
-import { Prisma, Role, AccountStatus } from "@/app/generated/prisma/client";
+import { Prisma } from "@/app/generated/prisma/client";
 
 import { signupRoleOptions } from "./constants";
 import { hashPassword, verifyPassword } from "./auth";
@@ -11,10 +11,12 @@ import {
   createUser,
   createVerificationToken,
   createSession,
+  deleteSessionByToken,
   findUserByEmail,
   roleLabelToEnum,
 } from "./db";
 import { sendVerificationEmail } from "./email";
+import { getPostLoginRedirectPath } from "./role-routing";
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -93,32 +95,6 @@ function logSigninError(error: unknown, email: string) {
     return;
   }
   console.error("[signin] unexpected error", { error, email });
-}
-
-function getPostLoginRedirectPath(input: { role: Role; status: AccountStatus }) {
-  if (input.role === Role.CUSTOMER) {
-    if (input.status === "PROFILE_COMPLETED") {
-      return "/restaurants";
-    }
-    return "/onboarding/customer";
-  }
-
-  if (input.role === Role.RESTAURANT) {
-    if (
-      input.status === "PROFILE_COMPLETED" ||
-      input.status === "PENDING_APPROVAL" ||
-      input.status === "APPROVED"
-    ) {
-      return "/restaurant";
-    }
-    return "/onboarding/restaurant";
-  }
-
-  if (input.role === Role.DRIVER) {
-    return "/onboarding/driver";
-  }
-
-  return "/";
 }
 
 export async function signUp(formData: FormData) {
@@ -226,4 +202,16 @@ export async function signIn(formData: FormData) {
   });
 
   redirect(getPostLoginRedirectPath({ role: user.role, status: user.status }));
+}
+
+export async function signOut() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("foodify_session")?.value;
+
+  if (token) {
+    await deleteSessionByToken(token);
+  }
+
+  cookieStore.delete("foodify_session");
+  redirect("/login");
 }

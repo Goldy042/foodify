@@ -3,20 +3,40 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getUserFromSession } from "@/app/lib/session";
 import { Role } from "@/app/generated/prisma/client";
+import { signOut } from "@/app/lib/auth-actions";
 
-const roleNav: Record<Role, Array<{ label: string; href: string }>> = {
-  CUSTOMER: [
-    { label: "Restaurants", href: "/restaurants" },
-    { label: "Orders", href: "/customer/orders" },
-    { label: "Profile", href: "/customer/profile" },
-  ],
-  RESTAURANT: [
-    { label: "Workspace", href: "/restaurant" },
-    { label: "Onboarding", href: "/onboarding/restaurant" },
-  ],
-  DRIVER: [{ label: "Onboarding", href: "/onboarding/driver" }],
-  ADMIN: [],
-};
+function getRoleNav(userRole: Role, userStatus: string) {
+  if (userRole === Role.CUSTOMER) {
+    return [
+      { label: "Dashboard", href: "/customer" },
+      { label: "Restaurants", href: "/restaurants" },
+      { label: "Orders", href: "/customer/orders" },
+      { label: "Profile", href: "/customer/profile" },
+    ];
+  }
+
+  if (userRole === Role.RESTAURANT) {
+    const nav = [
+      { label: "Dashboard", href: "/restaurant" },
+      { label: "Menu", href: "/restaurant/menu" },
+      { label: "Orders", href: "/restaurant/orders" },
+      { label: "Staff", href: "/restaurant/staff" },
+      { label: "Settings", href: "/restaurant/settings" },
+    ];
+
+    if (userStatus === "EMAIL_VERIFIED" || userStatus === "REJECTED") {
+      nav.push({ label: "Onboarding", href: "/onboarding/restaurant" });
+    }
+
+    return nav;
+  }
+
+  if (userRole === Role.DRIVER) {
+    return [{ label: "Dashboard", href: "/onboarding/driver" }];
+  }
+
+  return [];
+}
 
 export async function AppHeader() {
   const user = await getUserFromSession();
@@ -24,13 +44,13 @@ export async function AppHeader() {
     return null;
   }
 
-  const navItems = roleNav[user.role] ?? [];
+  const navItems = getRoleNav(user.role, user.status);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 py-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="font-display text-lg font-semibold">
+          <Link href={navItems[0]?.href ?? "/"} className="font-display text-lg font-semibold">
             Foodify
           </Link>
           {user.role === Role.CUSTOMER ? (
@@ -49,6 +69,11 @@ export async function AppHeader() {
               {item.label}
             </Link>
           ))}
+          <form action={signOut} className="md:hidden">
+            <Button type="submit" size="sm" variant="outline">
+              Log out
+            </Button>
+          </form>
         </nav>
         <div className="hidden items-center gap-3 md:flex">
           {user.role === Role.CUSTOMER ? (
@@ -57,7 +82,7 @@ export async function AppHeader() {
             </Button>
           ) : user.role === Role.RESTAURANT ? (
             <Button asChild size="sm" variant="outline">
-              <Link href="/restaurant">Go to workspace</Link>
+              <Link href="/restaurant">Restaurant dashboard</Link>
             </Button>
           ) : (
             <Button asChild size="sm" variant="outline">
@@ -66,6 +91,11 @@ export async function AppHeader() {
               </Link>
             </Button>
           )}
+          <form action={signOut}>
+            <Button type="submit" size="sm" variant="outline">
+              Log out
+            </Button>
+          </form>
         </div>
       </div>
     </header>

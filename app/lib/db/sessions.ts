@@ -19,7 +19,6 @@ export async function getUserBySessionToken(token: string) {
     where: { token },
     include: { user: true },
   });
-  console.log("Session found for token:", session);
   if (!session) {
     return null;
   }
@@ -27,4 +26,10 @@ export async function getUserBySessionToken(token: string) {
     return null;
   }
   return session.user;
+}
+
+export async function deleteSessionByToken(token: string) {
+  await prisma.session.deleteMany({
+    where: { token },
+  });
 }

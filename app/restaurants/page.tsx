@@ -26,7 +26,6 @@ import {
 } from "@/app/lib/db";
 import {
   calculateDistanceKm,
-  DEFAULT_SERVICE_RADIUS_KM,
   isRestaurantOpenNow,
 } from "@/app/lib/restaurant-availability";
 import { getUserFromSession } from "@/app/lib/session";
@@ -45,8 +44,14 @@ type PageProps = {
 
 const SORT_OPTIONS = ["Recommended", "Fast Prep", "Newest"] as const;
 const STATUS_OPTIONS = ["Open now"] as const;
-const DEFAULT_SORT_OPTION = "Recommended";
 const PAGE_SIZE = 8;
+const QUICK_SEARCH_TERMS = [
+  "Jollof rice",
+  "Burger",
+  "Shawarma",
+  "Pasta",
+  "Seafood",
+] as const;
 
 const sortOptionToValue = {
   Recommended: "recommended",
@@ -104,7 +109,7 @@ function buildRestaurantsHref(options: {
   selectedCuisineLabels: string[];
   selectedOpenNow: boolean;
   searchQuery: string;
-  selectedSortOption: (typeof SORT_OPTIONS)[number];
+  selectedSortOption: (typeof SORT_OPTIONS)[number] | "";
   page: number;
 }) {
   const params = new URLSearchParams();
@@ -123,7 +128,7 @@ function buildRestaurantsHref(options: {
   if (options.searchQuery) {
     params.set("q", options.searchQuery);
   }
-  if (options.selectedSortOption !== DEFAULT_SORT_OPTION) {
+  if (options.selectedSortOption) {
     params.set("sort", options.selectedSortOption);
   }
   if (options.page > 1) {
@@ -182,8 +187,10 @@ export default async function RestaurantsPage({ searchParams }: PageProps) {
     rawSort as (typeof SORT_OPTIONS)[number]
   )
     ? (rawSort as (typeof SORT_OPTIONS)[number])
-    : DEFAULT_SORT_OPTION;
-  const sortBy = sortOptionToValue[selectedSortOption];
+    : "";
+  const sortBy = selectedSortOption
+    ? sortOptionToValue[selectedSortOption as keyof typeof sortOptionToValue]
+    : undefined;
   const searchQuery = getFirstValue(resolvedSearchParams.q).trim();
   const requestedPage = parsePositiveInt(getFirstValue(resolvedSearchParams.page));
 
@@ -202,9 +209,6 @@ export default async function RestaurantsPage({ searchParams }: PageProps) {
     prepTimeRange: mappedPrepTime,
     cuisineTypes: mappedCuisine ?? undefined,
     openNow: selectedOpenNow,
-    customerLat: Number(profile.defaultAddressLat),
-    customerLng: Number(profile.defaultAddressLng),
-    maxDistanceKm: DEFAULT_SERVICE_RADIUS_KM,
     search: searchQuery || undefined,
     sortBy,
     page: requestedPage,
@@ -319,15 +323,15 @@ export default async function RestaurantsPage({ searchParams }: PageProps) {
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
         <header className="space-y-3">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            Restaurants
+            Find Food
           </p>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-                Browse approved restaurants
+                What are you craving today?
               </h1>
               <p className="max-w-2xl text-sm text-muted-foreground">
-                Verified restaurants that are currently live on Foodify.
+                Search dishes or restaurants and order from approved kitchens near you.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -340,6 +344,42 @@ export default async function RestaurantsPage({ searchParams }: PageProps) {
             </div>
           </div>
         </header>
+
+        <section className="rounded-2xl border border-border/70 bg-gradient-to-br from-orange-50 via-amber-50 to-background p-6 shadow-sm md:p-8">
+          <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                Food discovery
+              </p>
+              <h2 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">
+                Start with a dish, then pick your restaurant.
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Try dish names like “Jollof rice”, “Shawarma”, or “Burger” to find
+                matching menus faster.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {QUICK_SEARCH_TERMS.map((term) => (
+                <Button key={term} asChild size="sm" variant="outline">
+                  <Link
+                    href={buildRestaurantsHref({
+                      selectedArea,
+                      selectedPrepTime,
+                      selectedCuisineLabels,
+                      selectedOpenNow,
+                      searchQuery: term,
+                      selectedSortOption,
+                      page: 1,
+                    })}
+                  >
+                    {term}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </section>
 
         <Card className="border-border/70 shadow-sm">
           <details className="group" open={hasFilters}>
@@ -362,7 +402,7 @@ export default async function RestaurantsPage({ searchParams }: PageProps) {
                     id="q"
                     name="q"
                     defaultValue={searchQuery}
-                    placeholder="Search by restaurant name or cuisine"
+                    placeholder="Search by dish, restaurant, or cuisine"
                   />
                 </div>
                 <div className="space-y-2">
@@ -370,6 +410,7 @@ export default async function RestaurantsPage({ searchParams }: PageProps) {
                   <SelectField
                     name="sort"
                     options={SORT_OPTIONS}
+                    placeholder="Any order"
                     defaultValue={selectedSortOption}
                   />
                 </div>
@@ -430,7 +471,10 @@ export default async function RestaurantsPage({ searchParams }: PageProps) {
             Showing {showingFrom}-{showingTo} of {listing.total}
           </p>
           <p>
-            Sorted by {selectedSortOption} | Within {DEFAULT_SERVICE_RADIUS_KM}km
+            {selectedSortOption
+              ? `Sorted by ${selectedSortOption}`
+              : "No sort filter"}{" "}
+            | Distance is shown for reference
           </p>
         </div>
         {activeFilters.length > 0 ? (
@@ -540,10 +584,22 @@ export default async function RestaurantsPage({ searchParams }: PageProps) {
                           {distanceLabel}
                         </span>
                         <span className="rounded-full border border-border/70 px-3 py-1">
-                          {restaurant._count.menuItems} menu item
-                          {restaurant._count.menuItems === 1 ? "" : "s"}
+                          {restaurant.sellableMenuItemCount} dish
+                          {restaurant.sellableMenuItemCount === 1 ? "" : "s"}
                         </span>
                       </div>
+                      {restaurant.menuItems.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {restaurant.menuItems.map((item) => (
+                            <span
+                              key={`${restaurant.id}:${item.name}`}
+                              className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
+                            >
+                              {item.name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
                       <Button asChild type="button" variant="outline">
                         <Link href={`/restaurants/${restaurant.id}`}>View menu</Link>
                       </Button>

@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 type OptionDraft = {
@@ -90,6 +97,154 @@ const EGUSI_PRESET: GroupDraft[] = [
   },
 ];
 
+const RICE_PRESET: GroupDraft[] = [
+  {
+    name: "Protein",
+    isRequired: true,
+    maxSelections: 1,
+    options: [
+      {
+        name: "Chicken",
+        priceDelta: 500,
+        maxQuantity: 2,
+        includedQuantity: 0,
+        defaultQuantity: 1,
+      },
+      {
+        name: "Beef",
+        priceDelta: 400,
+        maxQuantity: 2,
+        includedQuantity: 0,
+        defaultQuantity: 0,
+      },
+      {
+        name: "Fish",
+        priceDelta: 600,
+        maxQuantity: 2,
+        includedQuantity: 0,
+        defaultQuantity: 0,
+      },
+    ],
+  },
+  {
+    name: "Drinks",
+    isRequired: false,
+    maxSelections: 1,
+    options: [
+      {
+        name: "Coke",
+        priceDelta: 250,
+        maxQuantity: 1,
+        includedQuantity: 0,
+        defaultQuantity: 0,
+      },
+      {
+        name: "Water",
+        priceDelta: 0,
+        maxQuantity: 1,
+        includedQuantity: 0,
+        defaultQuantity: 0,
+      },
+    ],
+  },
+];
+
+const DRINKS_PRESET: GroupDraft[] = [
+  {
+    name: "Size",
+    isRequired: true,
+    maxSelections: 1,
+    options: [
+      {
+        name: "50cl",
+        priceDelta: 0,
+        maxQuantity: 1,
+        includedQuantity: 0,
+        defaultQuantity: 1,
+      },
+      {
+        name: "60cl",
+        priceDelta: 100,
+        maxQuantity: 1,
+        includedQuantity: 0,
+        defaultQuantity: 0,
+      },
+      {
+        name: "1L",
+        priceDelta: 250,
+        maxQuantity: 1,
+        includedQuantity: 0,
+        defaultQuantity: 0,
+      },
+    ],
+  },
+];
+
+const COMBOS_PRESET: GroupDraft[] = [
+  {
+    name: "Main Choice",
+    isRequired: true,
+    maxSelections: 1,
+    options: [
+      {
+        name: "Jollof Rice",
+        priceDelta: 0,
+        maxQuantity: 1,
+        includedQuantity: 0,
+        defaultQuantity: 1,
+      },
+      {
+        name: "Fried Rice",
+        priceDelta: 200,
+        maxQuantity: 1,
+        includedQuantity: 0,
+        defaultQuantity: 0,
+      },
+    ],
+  },
+  {
+    name: "Drink",
+    isRequired: false,
+    maxSelections: 1,
+    options: [
+      {
+        name: "Malt",
+        priceDelta: 300,
+        maxQuantity: 1,
+        includedQuantity: 0,
+        defaultQuantity: 1,
+      },
+      {
+        name: "Water",
+        priceDelta: 0,
+        maxQuantity: 1,
+        includedQuantity: 0,
+        defaultQuantity: 0,
+      },
+    ],
+  },
+];
+
+const PRESETS_BY_CATEGORY: Record<
+  string,
+  {
+    label: string;
+    groups: GroupDraft[];
+  }
+> = {
+  "Swallow & Soup": { label: "Egusi / Swallow preset", groups: EGUSI_PRESET },
+  "Rice Dishes": { label: "Rice preset", groups: RICE_PRESET },
+  Drinks: { label: "Drinks preset", groups: DRINKS_PRESET },
+  Combos: { label: "Combo preset", groups: COMBOS_PRESET },
+};
+
+function cloneGroups(groups: GroupDraft[]) {
+  return groups.map((group) => ({
+    ...group,
+    options: group.options.map((option) => ({ ...option })),
+  }));
+}
+
 function clampInt(value: number, min: number, max?: number) {
   if (!Number.isFinite(value)) {
     return min;
@@ -130,6 +285,7 @@ function sanitizeGroup(group: GroupDraft) {
 
 export function MenuModifierBuilder() {
   const [groups, setGroups] = React.useState<GroupDraft[]>([]);
+  const [presetCategory, setPresetCategory] = React.useState("Swallow & Soup");
 
   const payload = React.useMemo(() => {
     const sanitized = groups.map(sanitizeGroup);
@@ -205,14 +361,32 @@ export function MenuModifierBuilder() {
           <Button type="button" variant="outline" size="sm" onClick={addGroup}>
             Add group
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setGroups(EGUSI_PRESET)}
-          >
-            Load Egusi preset
-          </Button>
+          <div className="flex items-center gap-2">
+            <Select value={presetCategory} onValueChange={setPresetCategory}>
+              <SelectTrigger className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.keys(PRESETS_BY_CATEGORY).map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setGroups(
+                  cloneGroups(PRESETS_BY_CATEGORY[presetCategory]?.groups ?? [])
+                )
+              }
+            >
+              Load preset
+            </Button>
+          </div>
           <Button
             type="button"
             variant="ghost"
@@ -226,7 +400,8 @@ export function MenuModifierBuilder() {
 
       {groups.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          No modifier groups yet. Click "Add group" or "Load Egusi preset".
+          No modifier groups yet. Pick a category and click "Load preset", or
+          click "Add group".
         </p>
       ) : (
         <div className="space-y-4">

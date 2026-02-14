@@ -189,121 +189,126 @@ export function MenuItemActions({
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-1 flex-col gap-3">
+    <div className="space-y-4">
+      <div className="space-y-3">
         {modifierGroups.length > 0 ? (
-          <div className="grid gap-3">
-            {modifierGroups.map((group) => {
-              const groupSelections = selectedModifiers[group.id] ?? {};
-              const selectedCount = selectedCountByGroup[group.id] ?? 0;
+          <details className="rounded-xl border border-border/70 bg-muted/20" open={missingRequired}>
+            <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium">
+              Customize add-ons
+            </summary>
+            <div className="grid gap-3 px-3 pb-3">
+              {modifierGroups.map((group) => {
+                const groupSelections = selectedModifiers[group.id] ?? {};
+                const selectedCount = selectedCountByGroup[group.id] ?? 0;
 
-              return (
-                <div key={group.id} className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <Label className="text-sm font-semibold">{group.name}</Label>
-                    <span className="rounded-full border border-border/70 px-2 py-0.5 text-[10px] uppercase">
-                      {group.isRequired ? "Required" : "Optional"}
-                    </span>
-                    <span className="text-muted-foreground">Max {group.maxSelections}</span>
-                  </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {group.options.map((option) => {
-                      const selectedQuantity = Math.floor(groupSelections[option.id] ?? 0);
-                      const checked = selectedQuantity > 0;
-                      const selectionLimitReached =
-                        selectedCount >= group.maxSelections && !checked;
-                      const chargeableQty = Math.max(
-                        0,
-                        selectedQuantity - Math.max(0, option.includedQuantity)
-                      );
+                return (
+                  <div key={group.id} className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <Label className="text-sm font-semibold">{group.name}</Label>
+                      <span className="rounded-full border border-border/70 px-2 py-0.5 text-[10px] uppercase">
+                        {group.isRequired ? "Required" : "Optional"}
+                      </span>
+                      <span className="text-muted-foreground">Max {group.maxSelections}</span>
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {group.options.map((option) => {
+                        const selectedQuantity = Math.floor(groupSelections[option.id] ?? 0);
+                        const checked = selectedQuantity > 0;
+                        const selectionLimitReached =
+                          selectedCount >= group.maxSelections && !checked;
+                        const chargeableQty = Math.max(
+                          0,
+                          selectedQuantity - Math.max(0, option.includedQuantity)
+                        );
 
-                      return (
-                        <div
-                          key={option.id}
-                          className={`space-y-2 rounded-lg border border-border/70 px-3 py-2 text-xs ${
-                            selectionLimitReached ? "opacity-60" : ""
-                          }`}
-                        >
-                          <label className="flex items-center gap-3">
-                            <Checkbox
-                              checked={checked}
-                              disabled={disabled || selectionLimitReached}
-                              onCheckedChange={(next) => {
-                                if (next) {
-                                  const defaultQuantity = Math.max(
-                                    1,
-                                    Math.min(option.maxQuantity, option.defaultQuantity || 1)
-                                  );
-                                  setOptionQuantity(group, option, defaultQuantity);
-                                  return;
-                                }
-                                setOptionQuantity(group, option, 0);
-                              }}
-                            />
-                            <span className="flex-1">{option.name}</span>
-                            <span className="text-muted-foreground">
-                              +{formatCurrency(option.priceDelta)} each
-                            </span>
-                          </label>
-
-                          {checked ? (
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  disabled={disabled}
-                                  onClick={() =>
-                                    setOptionQuantity(group, option, selectedQuantity - 1)
+                        return (
+                          <div
+                            key={option.id}
+                            className={`space-y-2 rounded-lg border border-border/70 bg-background px-3 py-2 text-xs ${
+                              selectionLimitReached ? "opacity-60" : ""
+                            }`}
+                          >
+                            <label className="flex items-center gap-3">
+                              <Checkbox
+                                checked={checked}
+                                disabled={disabled || selectionLimitReached}
+                                onCheckedChange={(next) => {
+                                  if (next) {
+                                    const defaultQuantity = Math.max(
+                                      1,
+                                      Math.min(option.maxQuantity, option.defaultQuantity || 1)
+                                    );
+                                    setOptionQuantity(group, option, defaultQuantity);
+                                    return;
                                   }
-                                >
-                                  -
-                                </Button>
-                                <span className="min-w-6 text-center font-medium">
-                                  {selectedQuantity}
-                                </span>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  disabled={disabled}
-                                  onClick={() =>
-                                    setOptionQuantity(group, option, selectedQuantity + 1)
-                                  }
-                                >
-                                  +
-                                </Button>
-                                <span className="text-muted-foreground">
-                                  max {option.maxQuantity}
-                                </span>
+                                  setOptionQuantity(group, option, 0);
+                                }}
+                              />
+                              <span className="flex-1">{option.name}</span>
+                              <span className="text-muted-foreground">
+                                +{formatCurrency(option.priceDelta)} each
+                              </span>
+                            </label>
+
+                            {checked ? (
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={disabled}
+                                    onClick={() =>
+                                      setOptionQuantity(group, option, selectedQuantity - 1)
+                                    }
+                                  >
+                                    -
+                                  </Button>
+                                  <span className="min-w-6 text-center font-medium">
+                                    {selectedQuantity}
+                                  </span>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={disabled}
+                                    onClick={() =>
+                                      setOptionQuantity(group, option, selectedQuantity + 1)
+                                    }
+                                  >
+                                    +
+                                  </Button>
+                                  <span className="text-muted-foreground">
+                                    max {option.maxQuantity}
+                                  </span>
+                                </div>
+                                {option.includedQuantity > 0 ? (
+                                  <span className="text-muted-foreground">
+                                    {chargeableQty > 0
+                                      ? `${option.includedQuantity} included`
+                                      : "Included"}
+                                  </span>
+                                ) : null}
                               </div>
-                              {option.includedQuantity > 0 ? (
-                                <span className="text-muted-foreground">
-                                  {chargeableQty > 0
-                                    ? `${option.includedQuantity} included`
-                                    : "Included"}
-                                </span>
-                              ) : null}
-                            </div>
-                          ) : null}
-                        </div>
-                      );
-                    })}
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </details>
         ) : null}
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center">
           <Select
             value={measurementId}
             onValueChange={setMeasurementId}
             disabled={disabled}
           >
-            <SelectTrigger className="sm:w-48">
+            <SelectTrigger className="w-full md:w-56">
               <SelectValue placeholder="Select size" />
             </SelectTrigger>
             <SelectContent>
@@ -319,7 +324,7 @@ export function MenuItemActions({
             type="number"
             min={1}
             max={MAX_CART_QUANTITY}
-            className="w-24"
+            className="w-full md:w-24"
             disabled={disabled}
             value={quantity}
             onChange={(event) => {
@@ -340,76 +345,78 @@ export function MenuItemActions({
         ) : null}
       </div>
 
-      <Button
-        type="button"
-        disabled={!canAdd}
-        onClick={() => {
-          if (!selectedMeasurement) {
-            return;
-          }
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          type="button"
+          disabled={!canAdd}
+          onClick={() => {
+            if (!selectedMeasurement) {
+              return;
+            }
 
-          const result = addToCart(restaurant, {
-            menuItemId: item.id,
-            measurementId: selectedMeasurement.id,
-            name: item.name,
-            measurementUnit: selectedMeasurement.unit,
-            unitPrice: selectedMeasurement.basePrice,
-            quantity,
-            modifiers: selectedModifierOptions,
-          });
+            const result = addToCart(restaurant, {
+              menuItemId: item.id,
+              measurementId: selectedMeasurement.id,
+              name: item.name,
+              measurementUnit: selectedMeasurement.unit,
+              unitPrice: selectedMeasurement.basePrice,
+              quantity,
+              modifiers: selectedModifierOptions,
+            });
 
-          if (result.status === "invalid") {
-            setAdded(false);
-            setFeedback("Could not add this item. Please try again.");
+            if (result.status === "invalid") {
+              setAdded(false);
+              setFeedback("Could not add this item. Please try again.");
+              if (feedbackTimerRef.current !== null) {
+                window.clearTimeout(feedbackTimerRef.current);
+              }
+              feedbackTimerRef.current = window.setTimeout(
+                () => setFeedback(null),
+                2200
+              );
+              return;
+            }
+
+            if (result.status === "cancelled") {
+              setAdded(false);
+              setFeedback("Kept your existing cart.");
+              if (feedbackTimerRef.current !== null) {
+                window.clearTimeout(feedbackTimerRef.current);
+              }
+              feedbackTimerRef.current = window.setTimeout(
+                () => setFeedback(null),
+                2200
+              );
+              return;
+            }
+
+            if (result.status === "replaced") {
+              setFeedback("Started a new cart for this restaurant.");
+            } else if (result.status === "merged") {
+              setFeedback("Updated quantity in your cart.");
+            } else {
+              setFeedback("Added to cart.");
+            }
+            setAdded(true);
             if (feedbackTimerRef.current !== null) {
               window.clearTimeout(feedbackTimerRef.current);
             }
-            feedbackTimerRef.current = window.setTimeout(
-              () => setFeedback(null),
-              2200
-            );
-            return;
-          }
-
-          if (result.status === "cancelled") {
-            setAdded(false);
-            setFeedback("Kept your existing cart.");
-            if (feedbackTimerRef.current !== null) {
-              window.clearTimeout(feedbackTimerRef.current);
-            }
-            feedbackTimerRef.current = window.setTimeout(
-              () => setFeedback(null),
-              2200
-            );
-            return;
-          }
-
-          if (result.status === "replaced") {
-            setFeedback("Started a new cart for this restaurant.");
-          } else if (result.status === "merged") {
-            setFeedback("Updated quantity in your cart.");
-          } else {
-            setFeedback("Added to cart.");
-          }
-          setAdded(true);
-          if (feedbackTimerRef.current !== null) {
-            window.clearTimeout(feedbackTimerRef.current);
-          }
-          feedbackTimerRef.current = window.setTimeout(() => {
-            setAdded(false);
-            setFeedback(null);
-          }, 2200);
-        }}
-      >
-        {disabled
-          ? disabledReason === "closed"
-            ? "Closed"
-            : "Unavailable"
-          : added
-            ? "Added"
-            : "Add to cart"}
-      </Button>
-      {feedback ? <p className="text-xs text-muted-foreground">{feedback}</p> : null}
+            feedbackTimerRef.current = window.setTimeout(() => {
+              setAdded(false);
+              setFeedback(null);
+            }, 2200);
+          }}
+        >
+          {disabled
+            ? disabledReason === "closed"
+              ? "Closed"
+              : "Unavailable"
+            : added
+              ? "Added"
+              : "Add to cart"}
+        </Button>
+        {feedback ? <p className="text-xs text-muted-foreground">{feedback}</p> : null}
+      </div>
     </div>
   );
 }
