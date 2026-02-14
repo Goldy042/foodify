@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { Role } from "@/app/generated/prisma/client";
 
@@ -88,6 +88,9 @@ export default async function AcceptStaffInvitePage({ searchParams }: PageProps)
     const existingUser = await prisma.user.findUnique({ where: { email } });
 
     let userId = existingUser?.id ?? null;
+    if (!userId) {
+      notFound();
+    }
 
     if (existingUser) {
       if (existingUser.isSuspended) {
