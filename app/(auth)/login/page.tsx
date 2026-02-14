@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { signIn } from "@/app/lib/auth-actions";
 import { getPostLoginRedirectPath } from "@/app/lib/role-routing";
 import { getUserFromSession } from "@/app/lib/session";
+import prisma from "@/lib/prisma";
 
 const highlights = [
   "Resume onboarding instantly",
@@ -20,6 +21,8 @@ const errorMessages: Record<string, string> = {
   "invalid-credentials": "Incorrect email or password.",
   suspended: "This account is suspended. Contact support for help.",
   "login-failed": "We could not sign you in. Try again.",
+  "staff-disabled": "Your staff access is currently disabled. Contact your manager.",
+  "staff-invite-pending": "Accept your staff invite before accessing restaurant tools.",
 };
 
 type PageProps = {
@@ -29,6 +32,16 @@ type PageProps = {
 export default async function LoginPage({ searchParams }: PageProps) {
   const user = await getUserFromSession();
   if (user) {
+    const activeStaffMembership = await prisma.restaurantStaffMember.findFirst({
+      where: {
+        userId: user.id,
+        status: "ACTIVE",
+      },
+      select: { id: true },
+    });
+    if (activeStaffMembership) {
+      redirect("/restaurant");
+    }
     redirect(getPostLoginRedirectPath({ role: user.role, status: user.status }));
   }
 

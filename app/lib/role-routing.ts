@@ -8,7 +8,7 @@ type RoleRedirectInput = {
 export function getPostLoginRedirectPath(input: RoleRedirectInput) {
   if (input.role === Role.CUSTOMER) {
     if (input.status === "PROFILE_COMPLETED") {
-      return "/customer/orders";
+      return "/app";
     }
     return "/onboarding/customer";
   }
@@ -30,3 +30,5 @@ export function getPostLoginRedirectPath(input: RoleRedirectInput) {
 
   return "/";
 }
+
+

@@ -55,7 +55,7 @@ export function CartClient() {
 
   if (!cart || cart.items.length === 0) {
     return (
-      <Card className="border-border/60 bg-card/80 shadow-sm">
+      <Card className="border-border/60 bg-card/90 shadow-sm">
         <CardHeader>
           <CardTitle className="text-xl">Your cart is empty</CardTitle>
         </CardHeader>
@@ -64,7 +64,7 @@ export function CartClient() {
             Add items from a restaurant menu to get started.
           </p>
           <Button asChild>
-            <Link href="/restaurants">Browse restaurants</Link>
+            <Link href="/app">Browse restaurants</Link>
           </Button>
         </CardContent>
       </Card>
@@ -74,10 +74,10 @@ export function CartClient() {
   return (
     <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
       <section className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 bg-background/80 px-4 py-3">
           <div>
-            <h2 className="text-xl font-semibold">Items</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-xl font-semibold">Bag items</h2>
+            <p className="text-sm text-muted-foreground truncate">
               {cart.restaurantName}
             </p>
           </div>
@@ -97,11 +97,11 @@ export function CartClient() {
           {cart.items.map((item) => (
             <Card
               key={item.lineId}
-              className="border-border/60 bg-background/80 shadow-sm"
+              className="overflow-hidden border-border/60 bg-background/90 shadow-sm"
             >
               <CardContent className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
-                  <p className="font-medium">{item.name}</p>
+                  <p className="font-semibold">{item.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {measurementEnumToLabel[item.measurementUnit] ??
                       item.measurementUnit}
@@ -127,7 +127,7 @@ export function CartClient() {
                   ) : null}
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-muted/20 px-2 py-1">
                     <Button
                       type="button"
                       variant="outline"
@@ -142,7 +142,7 @@ export function CartClient() {
                       type="number"
                       min={0}
                       max={MAX_CART_QUANTITY}
-                      className="w-20"
+                      className="w-16 border-0 bg-transparent px-1 text-center shadow-none focus-visible:ring-0"
                       value={item.quantity}
                       onChange={(event) => {
                         const value = Number(event.target.value);
@@ -174,7 +174,7 @@ export function CartClient() {
                     >
                       +
                     </Button>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="ml-1 text-xs font-medium text-muted-foreground">
                       {formatCurrency(getLineTotal(item))}
                     </span>
                   </div>
@@ -195,7 +195,7 @@ export function CartClient() {
       </section>
 
       <aside className="space-y-4">
-        <Card className="border-border/60 bg-card/80 shadow-sm">
+        <Card className="border-border/60 bg-card/95 shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl">Summary</CardTitle>
           </CardHeader>
@@ -219,13 +219,13 @@ export function CartClient() {
             </div>
             <form action={placeOrder} className="space-y-3">
               <input type="hidden" name="cart" value={cartPayload} />
-              <Button className="w-full" type="submit">
+              <Button className="h-11 w-full text-base" type="submit">
                 Place order
               </Button>
             </form>
           </CardContent>
         </Card>
-        <Card className="border-border/60 bg-background/80 shadow-sm">
+        <Card className="border-border/60 bg-amber-50/70 shadow-sm">
           <CardContent className="space-y-2 py-4 text-xs text-muted-foreground">
             <p>
               Delivery and service fees are estimates while we finalize pricing
@@ -238,3 +238,4 @@ export function CartClient() {
     </div>
   );
 }
+

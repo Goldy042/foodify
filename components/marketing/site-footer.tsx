@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 const footerLinks = [
-  { label: "Customers", href: "/customer" },
+  { label: "Customers", href: "/app" },
   { label: "Restaurants", href: "/for-restaurants" },
   { label: "Riders", href: "/riders" },
   { label: "Sign up", href: "/signup" },
@@ -60,3 +60,4 @@ export function SiteFooter() {
     </footer>
   );
 }
+

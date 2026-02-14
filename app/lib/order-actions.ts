@@ -10,7 +10,6 @@ import { calculateFees } from "@/app/lib/pricing";
 import { generateToken } from "@/app/lib/auth";
 import {
   calculateDistanceKm,
-  DEFAULT_SERVICE_RADIUS_KM,
   isRestaurantOpenNow,
 } from "@/app/lib/restaurant-availability";
 
@@ -164,15 +163,15 @@ function parseCart(raw: string): ParsedCartResult | null {
 export async function placeOrder(formData: FormData) {
   const cartRaw = String(formData.get("cart") || "");
   if (!cartRaw) {
-    redirect("/customer/cart?error=empty-cart");
+    redirect("/app/cart?error=empty-cart");
   }
 
   const parsedCart = parseCart(cartRaw);
   if (!parsedCart || parsedCart.cart.items.length === 0) {
-    redirect("/customer/cart?error=empty-cart");
+    redirect("/app/cart?error=empty-cart");
   }
   if (parsedCart.hadInvalidItems) {
-    redirect("/customer/cart?error=invalid-item");
+    redirect("/app/cart?error=invalid-item");
   }
 
   const cart = parsedCart.cart;
@@ -207,7 +206,7 @@ export async function placeOrder(formData: FormData) {
   });
 
   if (!restaurant) {
-    redirect("/customer/cart?error=invalid-restaurant");
+    redirect("/app/cart?error=invalid-restaurant");
   }
   if (
     !isRestaurantOpenNow({
@@ -216,15 +215,15 @@ export async function placeOrder(formData: FormData) {
       closeTime: restaurant.closeTime,
     })
   ) {
-    redirect("/customer/cart?error=restaurant-closed");
+    redirect("/app/cart?error=restaurant-closed");
   }
 
   const distanceKm = calculateDistanceKm(
     { lat: profile.defaultAddressLat, lng: profile.defaultAddressLng },
     { lat: restaurant.addressLat, lng: restaurant.addressLng }
   );
-  if (distanceKm === null || distanceKm > DEFAULT_SERVICE_RADIUS_KM) {
-    redirect("/customer/cart?error=outside-service-area");
+  if (distanceKm === null) {
+    redirect("/app/cart?error=outside-service-area");
   }
 
   const menuItemIds = Array.from(
@@ -243,7 +242,7 @@ export async function placeOrder(formData: FormData) {
   });
 
   if (menuItems.length !== menuItemIds.length) {
-    redirect("/customer/cart?error=invalid-item");
+    redirect("/app/cart?error=invalid-item");
   }
 
   const itemCreates: Prisma.OrderItemCreateWithoutOrderInput[] = [];
@@ -252,20 +251,20 @@ export async function placeOrder(formData: FormData) {
   for (const item of cart.items) {
     const menuItem = menuItems.find((entry) => entry.id === item.menuItemId);
     if (!menuItem) {
-      redirect("/customer/cart?error=invalid-item");
+      redirect("/app/cart?error=invalid-item");
     }
     if (!menuItem.isAvailable) {
-      redirect("/customer/cart?error=unavailable-item");
+      redirect("/app/cart?error=unavailable-item");
     }
     if (!item.measurementId) {
-      redirect("/customer/cart?error=invalid-item");
+      redirect("/app/cart?error=invalid-item");
     }
 
     const measurement = menuItem.measurements.find(
       (entry) => entry.id === item.measurementId
     );
     if (!measurement) {
-      redirect("/customer/cart?error=invalid-measurement");
+      redirect("/app/cart?error=invalid-measurement");
     }
 
     const quantity = Number.isFinite(item.quantity)
@@ -281,7 +280,7 @@ export async function placeOrder(formData: FormData) {
     );
     const selectionSet = new Set(selections);
     if (selectionSet.size !== selections.length) {
-      redirect("/customer/cart?error=invalid-modifier");
+      redirect("/app/cart?error=invalid-modifier");
     }
     const matchedOptionIds = new Set<string>();
 
@@ -291,10 +290,10 @@ export async function placeOrder(formData: FormData) {
       );
       options.forEach((option) => matchedOptionIds.add(option.id));
       if (group.isRequired && options.length === 0) {
-        redirect("/customer/cart?error=missing-modifier");
+        redirect("/app/cart?error=missing-modifier");
       }
       if (options.length > group.maxSelections) {
-        redirect("/customer/cart?error=invalid-modifier");
+        redirect("/app/cart?error=invalid-modifier");
       }
       return options.map((option) => ({
         id: option.id,
@@ -306,14 +305,14 @@ export async function placeOrder(formData: FormData) {
     });
 
     if (matchedOptionIds.size !== selectionSet.size) {
-      redirect("/customer/cart?error=invalid-modifier");
+      redirect("/app/cart?error=invalid-modifier");
     }
 
     const modifiersTotal = selectedOptions.reduce(
       (sum, option) => {
         const optionQuantity = Math.max(1, Math.floor(option.quantity));
         if (optionQuantity > option.maxQuantity) {
-          redirect("/customer/cart?error=invalid-modifier");
+          redirect("/app/cart?error=invalid-modifier");
         }
         const extraQuantity = Math.max(0, optionQuantity - option.includedQuantity);
         return sum + extraQuantity * option.priceDelta;
@@ -365,14 +364,14 @@ export async function placeOrder(formData: FormData) {
     },
   });
 
-  redirect(`/customer/orders/${order.id}?placed=1`);
+  redirect(`/app/orders/${order.id}?placed=1`);
 }
 
 export async function simulatePayment(formData: FormData) {
   const orderId = String(formData.get("orderId") || "");
   const outcome = String(formData.get("outcome") || "success");
   if (!orderId) {
-    redirect("/customer/cart?error=empty-cart");
+    redirect("/app/cart?error=empty-cart");
   }
 
   const user = await getUserFromSession();
@@ -400,11 +399,11 @@ export async function simulatePayment(formData: FormData) {
   });
 
   if (!order) {
-    redirect(`/customer/orders/${orderId}?error=not-found`);
+    redirect(`/app/orders/${orderId}?error=not-found`);
   }
 
   if (!["PLACED", "FAILED_PAYMENT"].includes(order.status)) {
-    redirect(`/customer/orders/${orderId}?error=invalid-status`);
+    redirect(`/app/orders/${orderId}?error=invalid-status`);
   }
 
   const paymentStatus = outcome === "success" ? "SUCCESS" : "FAILED";
@@ -442,5 +441,7 @@ export async function simulatePayment(formData: FormData) {
     });
   });
 
-  redirect(`/customer/orders/${order.id}?paid=1`);
+  redirect(`/app/orders/${order.id}?paid=1`);
 }
+
+

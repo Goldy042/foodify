@@ -33,8 +33,8 @@ export function CustomerFilterModal({
   const [open, setOpen] = React.useState(false);
   const hasActiveFilters = activeCount > 0;
   const clearHref = searchQuery
-    ? `/customer?q=${encodeURIComponent(searchQuery)}`
-    : "/customer";
+    ? `/app?q=${encodeURIComponent(searchQuery)}`
+    : "/app";
 
   return (
     <div className="relative">
@@ -133,3 +133,5 @@ export function CustomerFilterModal({
     </div>
   );
 }
+
+

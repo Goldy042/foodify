@@ -7,7 +7,7 @@ import { AppHeader } from "@/components/app/app-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/app/lib/pricing";
-import { requireRestaurantUser } from "@/app/restaurant/_lib/guards";
+import { requireRestaurantAccess } from "@/app/restaurant/_lib/access";
 
 type PageProps = {
   searchParams?:
@@ -59,14 +59,6 @@ function canTransition(from: OrderStatus, to: OrderStatus) {
   return allowedTransitions[from].includes(to);
 }
 
-async function getRestaurantId(userId: string) {
-  const restaurant = await prisma.restaurantProfile.findUnique({
-    where: { userId },
-    select: { id: true },
-  });
-  return restaurant?.id ?? null;
-}
-
 function orderPriority(status: OrderStatus) {
   switch (status) {
     case "PLACED":
@@ -92,21 +84,14 @@ function orderPriority(status: OrderStatus) {
 
 export default async function RestaurantOrdersPage({ searchParams }: PageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
-  const user = await requireRestaurantUser();
-  const restaurantId = await getRestaurantId(user.id);
-
-  if (!restaurantId) {
-    redirect("/onboarding/restaurant");
-  }
+  const access = await requireRestaurantAccess("MANAGE_ORDERS");
+  const restaurantId = access.restaurantId;
 
   async function transitionOrder(formData: FormData) {
     "use server";
 
-    const authedUser = await requireRestaurantUser();
-    const authedRestaurantId = await getRestaurantId(authedUser.id);
-    if (!authedRestaurantId) {
-      redirect("/onboarding/restaurant");
-    }
+    const authedAccess = await requireRestaurantAccess("MANAGE_ORDERS");
+    const authedRestaurantId = authedAccess.restaurantId;
 
     const orderId = String(formData.get("orderId") || "").trim();
     const nextStatus = String(formData.get("nextStatus") || "").trim() as OrderStatus;

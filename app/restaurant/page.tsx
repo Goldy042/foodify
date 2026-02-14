@@ -8,7 +8,7 @@ import { OrderStatus } from "@/app/generated/prisma/client";
 import { prepTimeEnumToLabel } from "@/app/lib/db";
 import { formatCurrency } from "@/app/lib/pricing";
 import { parseTimeToMinutes } from "@/app/lib/restaurant-availability";
-import { requireRestaurantUser } from "@/app/restaurant/_lib/guards";
+import { requireRestaurantAccess } from "@/app/restaurant/_lib/access";
 
 const LIVE_ORDER_STATUSES: OrderStatus[] = [
   OrderStatus.PLACED,
@@ -61,10 +61,11 @@ function toMoney(value: unknown) {
 }
 
 export default async function RestaurantDashboardPage() {
-  const user = await requireRestaurantUser();
+  const access = await requireRestaurantAccess("VIEW_DASHBOARD");
+  const user = access.user;
 
   const restaurant = await prisma.restaurantProfile.findUnique({
-    where: { userId: user.id },
+    where: { id: access.restaurantId },
     select: {
       id: true,
       restaurantName: true,

@@ -27,10 +27,14 @@ export type AggregateRestaurantStaffMember = {
 export type RestaurantStaffMemberMinAggregateOutputType = {
   id: string | null
   restaurantId: string | null
+  userId: string | null
   fullName: string | null
   email: string | null
   role: $Enums.RestaurantStaffRole | null
   status: $Enums.RestaurantStaffStatus | null
+  inviteToken: string | null
+  inviteExpiresAt: Date | null
+  acceptedAt: Date | null
   invitedAt: Date | null
   updatedAt: Date | null
 }
@@ -38,10 +42,14 @@ export type RestaurantStaffMemberMinAggregateOutputType = {
 export type RestaurantStaffMemberMaxAggregateOutputType = {
   id: string | null
   restaurantId: string | null
+  userId: string | null
   fullName: string | null
   email: string | null
   role: $Enums.RestaurantStaffRole | null
   status: $Enums.RestaurantStaffStatus | null
+  inviteToken: string | null
+  inviteExpiresAt: Date | null
+  acceptedAt: Date | null
   invitedAt: Date | null
   updatedAt: Date | null
 }
@@ -49,10 +57,14 @@ export type RestaurantStaffMemberMaxAggregateOutputType = {
 export type RestaurantStaffMemberCountAggregateOutputType = {
   id: number
   restaurantId: number
+  userId: number
   fullName: number
   email: number
   role: number
   status: number
+  inviteToken: number
+  inviteExpiresAt: number
+  acceptedAt: number
   invitedAt: number
   updatedAt: number
   _all: number
@@ -62,10 +74,14 @@ export type RestaurantStaffMemberCountAggregateOutputType = {
 export type RestaurantStaffMemberMinAggregateInputType = {
   id?: true
   restaurantId?: true
+  userId?: true
   fullName?: true
   email?: true
   role?: true
   status?: true
+  inviteToken?: true
+  inviteExpiresAt?: true
+  acceptedAt?: true
   invitedAt?: true
   updatedAt?: true
 }
@@ -73,10 +89,14 @@ export type RestaurantStaffMemberMinAggregateInputType = {
 export type RestaurantStaffMemberMaxAggregateInputType = {
   id?: true
   restaurantId?: true
+  userId?: true
   fullName?: true
   email?: true
   role?: true
   status?: true
+  inviteToken?: true
+  inviteExpiresAt?: true
+  acceptedAt?: true
   invitedAt?: true
   updatedAt?: true
 }
@@ -84,10 +104,14 @@ export type RestaurantStaffMemberMaxAggregateInputType = {
 export type RestaurantStaffMemberCountAggregateInputType = {
   id?: true
   restaurantId?: true
+  userId?: true
   fullName?: true
   email?: true
   role?: true
   status?: true
+  inviteToken?: true
+  inviteExpiresAt?: true
+  acceptedAt?: true
   invitedAt?: true
   updatedAt?: true
   _all?: true
@@ -168,10 +192,14 @@ export type RestaurantStaffMemberGroupByArgs<ExtArgs extends runtime.Types.Exten
 export type RestaurantStaffMemberGroupByOutputType = {
   id: string
   restaurantId: string
+  userId: string | null
   fullName: string
   email: string
   role: $Enums.RestaurantStaffRole
   status: $Enums.RestaurantStaffStatus
+  inviteToken: string | null
+  inviteExpiresAt: Date | null
+  acceptedAt: Date | null
   invitedAt: Date
   updatedAt: Date
   _count: RestaurantStaffMemberCountAggregateOutputType | null
@@ -200,29 +228,41 @@ export type RestaurantStaffMemberWhereInput = {
   NOT?: Prisma.RestaurantStaffMemberWhereInput | Prisma.RestaurantStaffMemberWhereInput[]
   id?: Prisma.UuidFilter<"RestaurantStaffMember"> | string
   restaurantId?: Prisma.UuidFilter<"RestaurantStaffMember"> | string
+  userId?: Prisma.UuidNullableFilter<"RestaurantStaffMember"> | string | null
   fullName?: Prisma.StringFilter<"RestaurantStaffMember"> | string
   email?: Prisma.StringFilter<"RestaurantStaffMember"> | string
   role?: Prisma.EnumRestaurantStaffRoleFilter<"RestaurantStaffMember"> | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFilter<"RestaurantStaffMember"> | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.StringNullableFilter<"RestaurantStaffMember"> | string | null
+  inviteExpiresAt?: Prisma.DateTimeNullableFilter<"RestaurantStaffMember"> | Date | string | null
+  acceptedAt?: Prisma.DateTimeNullableFilter<"RestaurantStaffMember"> | Date | string | null
   invitedAt?: Prisma.DateTimeFilter<"RestaurantStaffMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RestaurantStaffMember"> | Date | string
   restaurant?: Prisma.XOR<Prisma.RestaurantProfileScalarRelationFilter, Prisma.RestaurantProfileWhereInput>
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type RestaurantStaffMemberOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   restaurantId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  inviteToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  acceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   restaurant?: Prisma.RestaurantProfileOrderByWithRelationInput
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type RestaurantStaffMemberWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  userId?: string
+  inviteToken?: string
   restaurantId_email?: Prisma.RestaurantStaffMemberRestaurantIdEmailCompoundUniqueInput
   AND?: Prisma.RestaurantStaffMemberWhereInput | Prisma.RestaurantStaffMemberWhereInput[]
   OR?: Prisma.RestaurantStaffMemberWhereInput[]
@@ -232,18 +272,25 @@ export type RestaurantStaffMemberWhereUniqueInput = Prisma.AtLeast<{
   email?: Prisma.StringFilter<"RestaurantStaffMember"> | string
   role?: Prisma.EnumRestaurantStaffRoleFilter<"RestaurantStaffMember"> | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFilter<"RestaurantStaffMember"> | $Enums.RestaurantStaffStatus
+  inviteExpiresAt?: Prisma.DateTimeNullableFilter<"RestaurantStaffMember"> | Date | string | null
+  acceptedAt?: Prisma.DateTimeNullableFilter<"RestaurantStaffMember"> | Date | string | null
   invitedAt?: Prisma.DateTimeFilter<"RestaurantStaffMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RestaurantStaffMember"> | Date | string
   restaurant?: Prisma.XOR<Prisma.RestaurantProfileScalarRelationFilter, Prisma.RestaurantProfileWhereInput>
-}, "id" | "restaurantId_email">
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+}, "id" | "userId" | "inviteToken" | "restaurantId_email">
 
 export type RestaurantStaffMemberOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   restaurantId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  inviteToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  acceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   invitedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RestaurantStaffMemberCountOrderByAggregateInput
@@ -257,10 +304,14 @@ export type RestaurantStaffMemberScalarWhereWithAggregatesInput = {
   NOT?: Prisma.RestaurantStaffMemberScalarWhereWithAggregatesInput | Prisma.RestaurantStaffMemberScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"RestaurantStaffMember"> | string
   restaurantId?: Prisma.UuidWithAggregatesFilter<"RestaurantStaffMember"> | string
+  userId?: Prisma.UuidNullableWithAggregatesFilter<"RestaurantStaffMember"> | string | null
   fullName?: Prisma.StringWithAggregatesFilter<"RestaurantStaffMember"> | string
   email?: Prisma.StringWithAggregatesFilter<"RestaurantStaffMember"> | string
   role?: Prisma.EnumRestaurantStaffRoleWithAggregatesFilter<"RestaurantStaffMember"> | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusWithAggregatesFilter<"RestaurantStaffMember"> | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.StringNullableWithAggregatesFilter<"RestaurantStaffMember"> | string | null
+  inviteExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RestaurantStaffMember"> | Date | string | null
+  acceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"RestaurantStaffMember"> | Date | string | null
   invitedAt?: Prisma.DateTimeWithAggregatesFilter<"RestaurantStaffMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"RestaurantStaffMember"> | Date | string
 }
@@ -271,18 +322,26 @@ export type RestaurantStaffMemberCreateInput = {
   email: string
   role: $Enums.RestaurantStaffRole
   status?: $Enums.RestaurantStaffStatus
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  acceptedAt?: Date | string | null
   invitedAt?: Date | string
   updatedAt?: Date | string
   restaurant: Prisma.RestaurantProfileCreateNestedOneWithoutStaffMembersInput
+  user?: Prisma.UserCreateNestedOneWithoutStaffMembershipInput
 }
 
 export type RestaurantStaffMemberUncheckedCreateInput = {
   id?: string
   restaurantId: string
+  userId?: string | null
   fullName: string
   email: string
   role: $Enums.RestaurantStaffRole
   status?: $Enums.RestaurantStaffStatus
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  acceptedAt?: Date | string | null
   invitedAt?: Date | string
   updatedAt?: Date | string
 }
@@ -293,18 +352,26 @@ export type RestaurantStaffMemberUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRestaurantStaffRoleFieldUpdateOperationsInput | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFieldUpdateOperationsInput | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   restaurant?: Prisma.RestaurantProfileUpdateOneRequiredWithoutStaffMembersNestedInput
+  user?: Prisma.UserUpdateOneWithoutStaffMembershipNestedInput
 }
 
 export type RestaurantStaffMemberUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRestaurantStaffRoleFieldUpdateOperationsInput | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFieldUpdateOperationsInput | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -312,10 +379,14 @@ export type RestaurantStaffMemberUncheckedUpdateInput = {
 export type RestaurantStaffMemberCreateManyInput = {
   id?: string
   restaurantId: string
+  userId?: string | null
   fullName: string
   email: string
   role: $Enums.RestaurantStaffRole
   status?: $Enums.RestaurantStaffStatus
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  acceptedAt?: Date | string | null
   invitedAt?: Date | string
   updatedAt?: Date | string
 }
@@ -326,6 +397,9 @@ export type RestaurantStaffMemberUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRestaurantStaffRoleFieldUpdateOperationsInput | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFieldUpdateOperationsInput | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -333,12 +407,21 @@ export type RestaurantStaffMemberUpdateManyMutationInput = {
 export type RestaurantStaffMemberUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRestaurantStaffRoleFieldUpdateOperationsInput | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFieldUpdateOperationsInput | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type RestaurantStaffMemberNullableScalarRelationFilter = {
+  is?: Prisma.RestaurantStaffMemberWhereInput | null
+  isNot?: Prisma.RestaurantStaffMemberWhereInput | null
 }
 
 export type RestaurantStaffMemberListRelationFilter = {
@@ -359,10 +442,14 @@ export type RestaurantStaffMemberRestaurantIdEmailCompoundUniqueInput = {
 export type RestaurantStaffMemberCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   restaurantId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  inviteToken?: Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrder
+  acceptedAt?: Prisma.SortOrder
   invitedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -370,10 +457,14 @@ export type RestaurantStaffMemberCountOrderByAggregateInput = {
 export type RestaurantStaffMemberMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   restaurantId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  inviteToken?: Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrder
+  acceptedAt?: Prisma.SortOrder
   invitedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -381,12 +472,48 @@ export type RestaurantStaffMemberMaxOrderByAggregateInput = {
 export type RestaurantStaffMemberMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   restaurantId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   role?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  inviteToken?: Prisma.SortOrder
+  inviteExpiresAt?: Prisma.SortOrder
+  acceptedAt?: Prisma.SortOrder
   invitedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type RestaurantStaffMemberCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.RestaurantStaffMemberCreateWithoutUserInput, Prisma.RestaurantStaffMemberUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.RestaurantStaffMemberCreateOrConnectWithoutUserInput
+  connect?: Prisma.RestaurantStaffMemberWhereUniqueInput
+}
+
+export type RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.RestaurantStaffMemberCreateWithoutUserInput, Prisma.RestaurantStaffMemberUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.RestaurantStaffMemberCreateOrConnectWithoutUserInput
+  connect?: Prisma.RestaurantStaffMemberWhereUniqueInput
+}
+
+export type RestaurantStaffMemberUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.RestaurantStaffMemberCreateWithoutUserInput, Prisma.RestaurantStaffMemberUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.RestaurantStaffMemberCreateOrConnectWithoutUserInput
+  upsert?: Prisma.RestaurantStaffMemberUpsertWithoutUserInput
+  disconnect?: Prisma.RestaurantStaffMemberWhereInput | boolean
+  delete?: Prisma.RestaurantStaffMemberWhereInput | boolean
+  connect?: Prisma.RestaurantStaffMemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RestaurantStaffMemberUpdateToOneWithWhereWithoutUserInput, Prisma.RestaurantStaffMemberUpdateWithoutUserInput>, Prisma.RestaurantStaffMemberUncheckedUpdateWithoutUserInput>
+}
+
+export type RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.RestaurantStaffMemberCreateWithoutUserInput, Prisma.RestaurantStaffMemberUncheckedCreateWithoutUserInput>
+  connectOrCreate?: Prisma.RestaurantStaffMemberCreateOrConnectWithoutUserInput
+  upsert?: Prisma.RestaurantStaffMemberUpsertWithoutUserInput
+  disconnect?: Prisma.RestaurantStaffMemberWhereInput | boolean
+  delete?: Prisma.RestaurantStaffMemberWhereInput | boolean
+  connect?: Prisma.RestaurantStaffMemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RestaurantStaffMemberUpdateToOneWithWhereWithoutUserInput, Prisma.RestaurantStaffMemberUpdateWithoutUserInput>, Prisma.RestaurantStaffMemberUncheckedUpdateWithoutUserInput>
 }
 
 export type RestaurantStaffMemberCreateNestedManyWithoutRestaurantInput = {
@@ -439,22 +566,102 @@ export type EnumRestaurantStaffStatusFieldUpdateOperationsInput = {
   set?: $Enums.RestaurantStaffStatus
 }
 
+export type RestaurantStaffMemberCreateWithoutUserInput = {
+  id?: string
+  fullName: string
+  email: string
+  role: $Enums.RestaurantStaffRole
+  status?: $Enums.RestaurantStaffStatus
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  acceptedAt?: Date | string | null
+  invitedAt?: Date | string
+  updatedAt?: Date | string
+  restaurant: Prisma.RestaurantProfileCreateNestedOneWithoutStaffMembersInput
+}
+
+export type RestaurantStaffMemberUncheckedCreateWithoutUserInput = {
+  id?: string
+  restaurantId: string
+  fullName: string
+  email: string
+  role: $Enums.RestaurantStaffRole
+  status?: $Enums.RestaurantStaffStatus
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  acceptedAt?: Date | string | null
+  invitedAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type RestaurantStaffMemberCreateOrConnectWithoutUserInput = {
+  where: Prisma.RestaurantStaffMemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.RestaurantStaffMemberCreateWithoutUserInput, Prisma.RestaurantStaffMemberUncheckedCreateWithoutUserInput>
+}
+
+export type RestaurantStaffMemberUpsertWithoutUserInput = {
+  update: Prisma.XOR<Prisma.RestaurantStaffMemberUpdateWithoutUserInput, Prisma.RestaurantStaffMemberUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.RestaurantStaffMemberCreateWithoutUserInput, Prisma.RestaurantStaffMemberUncheckedCreateWithoutUserInput>
+  where?: Prisma.RestaurantStaffMemberWhereInput
+}
+
+export type RestaurantStaffMemberUpdateToOneWithWhereWithoutUserInput = {
+  where?: Prisma.RestaurantStaffMemberWhereInput
+  data: Prisma.XOR<Prisma.RestaurantStaffMemberUpdateWithoutUserInput, Prisma.RestaurantStaffMemberUncheckedUpdateWithoutUserInput>
+}
+
+export type RestaurantStaffMemberUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRestaurantStaffRoleFieldUpdateOperationsInput | $Enums.RestaurantStaffRole
+  status?: Prisma.EnumRestaurantStaffStatusFieldUpdateOperationsInput | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  invitedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  restaurant?: Prisma.RestaurantProfileUpdateOneRequiredWithoutStaffMembersNestedInput
+}
+
+export type RestaurantStaffMemberUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  restaurantId?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRestaurantStaffRoleFieldUpdateOperationsInput | $Enums.RestaurantStaffRole
+  status?: Prisma.EnumRestaurantStaffStatusFieldUpdateOperationsInput | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  invitedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type RestaurantStaffMemberCreateWithoutRestaurantInput = {
   id?: string
   fullName: string
   email: string
   role: $Enums.RestaurantStaffRole
   status?: $Enums.RestaurantStaffStatus
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  acceptedAt?: Date | string | null
   invitedAt?: Date | string
   updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutStaffMembershipInput
 }
 
 export type RestaurantStaffMemberUncheckedCreateWithoutRestaurantInput = {
   id?: string
+  userId?: string | null
   fullName: string
   email: string
   role: $Enums.RestaurantStaffRole
   status?: $Enums.RestaurantStaffStatus
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  acceptedAt?: Date | string | null
   invitedAt?: Date | string
   updatedAt?: Date | string
 }
@@ -491,20 +698,28 @@ export type RestaurantStaffMemberScalarWhereInput = {
   NOT?: Prisma.RestaurantStaffMemberScalarWhereInput | Prisma.RestaurantStaffMemberScalarWhereInput[]
   id?: Prisma.UuidFilter<"RestaurantStaffMember"> | string
   restaurantId?: Prisma.UuidFilter<"RestaurantStaffMember"> | string
+  userId?: Prisma.UuidNullableFilter<"RestaurantStaffMember"> | string | null
   fullName?: Prisma.StringFilter<"RestaurantStaffMember"> | string
   email?: Prisma.StringFilter<"RestaurantStaffMember"> | string
   role?: Prisma.EnumRestaurantStaffRoleFilter<"RestaurantStaffMember"> | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFilter<"RestaurantStaffMember"> | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.StringNullableFilter<"RestaurantStaffMember"> | string | null
+  inviteExpiresAt?: Prisma.DateTimeNullableFilter<"RestaurantStaffMember"> | Date | string | null
+  acceptedAt?: Prisma.DateTimeNullableFilter<"RestaurantStaffMember"> | Date | string | null
   invitedAt?: Prisma.DateTimeFilter<"RestaurantStaffMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"RestaurantStaffMember"> | Date | string
 }
 
 export type RestaurantStaffMemberCreateManyRestaurantInput = {
   id?: string
+  userId?: string | null
   fullName: string
   email: string
   role: $Enums.RestaurantStaffRole
   status?: $Enums.RestaurantStaffStatus
+  inviteToken?: string | null
+  inviteExpiresAt?: Date | string | null
+  acceptedAt?: Date | string | null
   invitedAt?: Date | string
   updatedAt?: Date | string
 }
@@ -515,26 +730,38 @@ export type RestaurantStaffMemberUpdateWithoutRestaurantInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRestaurantStaffRoleFieldUpdateOperationsInput | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFieldUpdateOperationsInput | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutStaffMembershipNestedInput
 }
 
 export type RestaurantStaffMemberUncheckedUpdateWithoutRestaurantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRestaurantStaffRoleFieldUpdateOperationsInput | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFieldUpdateOperationsInput | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RestaurantStaffMemberUncheckedUpdateManyWithoutRestaurantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRestaurantStaffRoleFieldUpdateOperationsInput | $Enums.RestaurantStaffRole
   status?: Prisma.EnumRestaurantStaffStatusFieldUpdateOperationsInput | $Enums.RestaurantStaffStatus
+  inviteToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  inviteExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   invitedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -544,73 +771,100 @@ export type RestaurantStaffMemberUncheckedUpdateManyWithoutRestaurantInput = {
 export type RestaurantStaffMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   restaurantId?: boolean
+  userId?: boolean
   fullName?: boolean
   email?: boolean
   role?: boolean
   status?: boolean
+  inviteToken?: boolean
+  inviteExpiresAt?: boolean
+  acceptedAt?: boolean
   invitedAt?: boolean
   updatedAt?: boolean
   restaurant?: boolean | Prisma.RestaurantProfileDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.RestaurantStaffMember$userArgs<ExtArgs>
 }, ExtArgs["result"]["restaurantStaffMember"]>
 
 export type RestaurantStaffMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   restaurantId?: boolean
+  userId?: boolean
   fullName?: boolean
   email?: boolean
   role?: boolean
   status?: boolean
+  inviteToken?: boolean
+  inviteExpiresAt?: boolean
+  acceptedAt?: boolean
   invitedAt?: boolean
   updatedAt?: boolean
   restaurant?: boolean | Prisma.RestaurantProfileDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.RestaurantStaffMember$userArgs<ExtArgs>
 }, ExtArgs["result"]["restaurantStaffMember"]>
 
 export type RestaurantStaffMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   restaurantId?: boolean
+  userId?: boolean
   fullName?: boolean
   email?: boolean
   role?: boolean
   status?: boolean
+  inviteToken?: boolean
+  inviteExpiresAt?: boolean
+  acceptedAt?: boolean
   invitedAt?: boolean
   updatedAt?: boolean
   restaurant?: boolean | Prisma.RestaurantProfileDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.RestaurantStaffMember$userArgs<ExtArgs>
 }, ExtArgs["result"]["restaurantStaffMember"]>
 
 export type RestaurantStaffMemberSelectScalar = {
   id?: boolean
   restaurantId?: boolean
+  userId?: boolean
   fullName?: boolean
   email?: boolean
   role?: boolean
   status?: boolean
+  inviteToken?: boolean
+  inviteExpiresAt?: boolean
+  acceptedAt?: boolean
   invitedAt?: boolean
   updatedAt?: boolean
 }
 
-export type RestaurantStaffMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "restaurantId" | "fullName" | "email" | "role" | "status" | "invitedAt" | "updatedAt", ExtArgs["result"]["restaurantStaffMember"]>
+export type RestaurantStaffMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "restaurantId" | "userId" | "fullName" | "email" | "role" | "status" | "inviteToken" | "inviteExpiresAt" | "acceptedAt" | "invitedAt" | "updatedAt", ExtArgs["result"]["restaurantStaffMember"]>
 export type RestaurantStaffMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurant?: boolean | Prisma.RestaurantProfileDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.RestaurantStaffMember$userArgs<ExtArgs>
 }
 export type RestaurantStaffMemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurant?: boolean | Prisma.RestaurantProfileDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.RestaurantStaffMember$userArgs<ExtArgs>
 }
 export type RestaurantStaffMemberIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   restaurant?: boolean | Prisma.RestaurantProfileDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.RestaurantStaffMember$userArgs<ExtArgs>
 }
 
 export type $RestaurantStaffMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "RestaurantStaffMember"
   objects: {
     restaurant: Prisma.$RestaurantProfilePayload<ExtArgs>
+    user: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     restaurantId: string
+    userId: string | null
     fullName: string
     email: string
     role: $Enums.RestaurantStaffRole
     status: $Enums.RestaurantStaffStatus
+    inviteToken: string | null
+    inviteExpiresAt: Date | null
+    acceptedAt: Date | null
     invitedAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["restaurantStaffMember"]>
@@ -1008,6 +1262,7 @@ readonly fields: RestaurantStaffMemberFieldRefs;
 export interface Prisma__RestaurantStaffMemberClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   restaurant<T extends Prisma.RestaurantProfileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RestaurantProfileDefaultArgs<ExtArgs>>): Prisma.Prisma__RestaurantProfileClient<runtime.Types.Result.GetResult<Prisma.$RestaurantProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.RestaurantStaffMember$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RestaurantStaffMember$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1039,10 +1294,14 @@ export interface Prisma__RestaurantStaffMemberClient<T, Null = never, ExtArgs ex
 export interface RestaurantStaffMemberFieldRefs {
   readonly id: Prisma.FieldRef<"RestaurantStaffMember", 'String'>
   readonly restaurantId: Prisma.FieldRef<"RestaurantStaffMember", 'String'>
+  readonly userId: Prisma.FieldRef<"RestaurantStaffMember", 'String'>
   readonly fullName: Prisma.FieldRef<"RestaurantStaffMember", 'String'>
   readonly email: Prisma.FieldRef<"RestaurantStaffMember", 'String'>
   readonly role: Prisma.FieldRef<"RestaurantStaffMember", 'RestaurantStaffRole'>
   readonly status: Prisma.FieldRef<"RestaurantStaffMember", 'RestaurantStaffStatus'>
+  readonly inviteToken: Prisma.FieldRef<"RestaurantStaffMember", 'String'>
+  readonly inviteExpiresAt: Prisma.FieldRef<"RestaurantStaffMember", 'DateTime'>
+  readonly acceptedAt: Prisma.FieldRef<"RestaurantStaffMember", 'DateTime'>
   readonly invitedAt: Prisma.FieldRef<"RestaurantStaffMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"RestaurantStaffMember", 'DateTime'>
 }
@@ -1438,6 +1697,25 @@ export type RestaurantStaffMemberDeleteManyArgs<ExtArgs extends runtime.Types.Ex
    * Limit how many RestaurantStaffMembers to delete.
    */
   limit?: number
+}
+
+/**
+ * RestaurantStaffMember.user
+ */
+export type RestaurantStaffMember$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

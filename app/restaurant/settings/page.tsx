@@ -26,7 +26,7 @@ import {
   prepTimeLabelToEnum,
 } from "@/app/lib/db";
 import { parseTimeToMinutes } from "@/app/lib/restaurant-availability";
-import { requireRestaurantUser } from "@/app/restaurant/_lib/guards";
+import { requireRestaurantAccess } from "@/app/restaurant/_lib/access";
 
 type PageProps = {
   searchParams?: Promise<{ status?: string; error?: string }> | { status?: string; error?: string };
@@ -86,10 +86,11 @@ function getProfileChecklist(input: {
 
 export default async function RestaurantSettingsPage({ searchParams }: PageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
-  const user = await requireRestaurantUser();
+  const access = await requireRestaurantAccess("MANAGE_SETTINGS");
+  const restaurantId = access.restaurantId;
 
   const restaurant = await prisma.restaurantProfile.findUnique({
-    where: { userId: user.id },
+    where: { id: restaurantId },
     select: {
       id: true,
       restaurantName: true,
@@ -113,9 +114,10 @@ export default async function RestaurantSettingsPage({ searchParams }: PageProps
   async function saveRestaurantSettings(formData: FormData) {
     "use server";
 
-    const authedUser = await requireRestaurantUser();
+    const authedAccess = await requireRestaurantAccess("MANAGE_SETTINGS");
+    const authedRestaurantId = authedAccess.restaurantId;
     const existingProfile = await prisma.restaurantProfile.findUnique({
-      where: { userId: authedUser.id },
+      where: { id: authedRestaurantId },
       select: {
         id: true,
         logoUrl: true,

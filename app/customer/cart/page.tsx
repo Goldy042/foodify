@@ -47,20 +47,23 @@ export default async function CustomerCartPage({ searchParams }: PageProps) {
     : null;
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppHeader /> 
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
-        <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            Cart
-          </p>
-          <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-            Review your order.
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            Check item quantities and pricing before you checkout.
-          </p>
-        </header>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,_hsl(30_95%_94%),_hsl(36_38%_98%)_42%,_hsl(36_26%_99%))]">
+      <AppHeader />
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 md:py-10">
+        <section className="relative overflow-hidden rounded-3xl border border-orange-200/70 bg-gradient-to-br from-orange-500 via-amber-400 to-rose-400 p-6 text-white shadow-lg md:p-8">
+          <div className="pointer-events-none absolute -right-20 -top-12 h-44 w-44 rounded-full bg-white/25 blur-3xl" />
+          <div className="relative space-y-3">
+            <p className="text-xs uppercase tracking-[0.35em] text-white/80">
+              Checkout
+            </p>
+            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
+              Review your bag and place your order.
+            </h1>
+            <p className="max-w-2xl text-sm text-white/90">
+              Confirm quantities, fees, and add-ons before payment.
+            </p>
+          </div>
+        </section>
 
         {errorMessage ? (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -68,7 +71,7 @@ export default async function CustomerCartPage({ searchParams }: PageProps) {
           </div>
         ) : null}
 
-        <Card className="border-border/70 bg-card/80 shadow-sm">
+        <Card className="border-border/70 bg-card/90 shadow-sm backdrop-blur">
           <CardHeader>
             <CardTitle className="text-xl">Order details</CardTitle>
           </CardHeader>
@@ -80,3 +83,5 @@ export default async function CustomerCartPage({ searchParams }: PageProps) {
     </div>
   );
 }
+
+

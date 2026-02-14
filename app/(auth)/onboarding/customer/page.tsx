@@ -54,7 +54,7 @@ export default async function CustomerOnboardingPage({
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
-                <Link href="/customer">Go to customer dashboard</Link>
+                <Link href="/app">Go to customer dashboard</Link>
               </Button>
             </CardContent>
           </Card>
@@ -216,3 +216,5 @@ export default async function CustomerOnboardingPage({
     </div>
   );
 }
+
+

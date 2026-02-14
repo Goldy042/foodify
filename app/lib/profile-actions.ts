@@ -39,13 +39,13 @@ export async function updateCustomerProfile(formData: FormData) {
   ).trim();
 
   if (!fullName || !addressText || !latInput || !lngInput) {
-    redirect("/customer/profile?error=missing");
+    redirect("/app/profile?error=missing");
   }
 
   const lat = parseCoordinate(latInput);
   const lng = parseCoordinate(lngInput);
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
-    redirect("/customer/profile?error=invalidCoords");
+    redirect("/app/profile?error=invalidCoords");
   }
 
   await upsertCustomerProfile(user.id, {
@@ -59,5 +59,7 @@ export async function updateCustomerProfile(formData: FormData) {
     await updateUser(user.id, { fullName });
   }
 
-  redirect("/customer/profile?status=updated");
+  redirect("/app/profile?status=updated");
 }
+
+

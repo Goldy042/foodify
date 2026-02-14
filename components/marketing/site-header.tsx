@@ -6,7 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { label: "Customers", href: "/customer" },
+  { label: "Customers", href: "/app" },
   { label: "Restaurants", href: "/for-restaurants" },
   { label: "Riders", href: "/riders" },
 ];
@@ -57,3 +57,4 @@ export function SiteHeader() {
     </header>
   );
 }
+

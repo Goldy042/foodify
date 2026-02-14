@@ -18,7 +18,7 @@ export default function RestaurantNotFound() {
               This restaurant is unavailable or no longer listed.
             </p>
             <Button asChild>
-              <Link href="/restaurants">Browse restaurants</Link>
+              <Link href="/app">Browse restaurants</Link>
             </Button>
           </CardContent>
         </Card>
@@ -26,3 +26,4 @@ export default function RestaurantNotFound() {
     </div>
   );
 }
+

@@ -1945,10 +1945,14 @@ export type RestaurantProfileScalarFieldEnum = (typeof RestaurantProfileScalarFi
 export const RestaurantStaffMemberScalarFieldEnum = {
   id: 'id',
   restaurantId: 'restaurantId',
+  userId: 'userId',
   fullName: 'fullName',
   email: 'email',
   role: 'role',
   status: 'status',
+  inviteToken: 'inviteToken',
+  inviteExpiresAt: 'inviteExpiresAt',
+  acceptedAt: 'acceptedAt',
   invitedAt: 'invitedAt',
   updatedAt: 'updatedAt'
 } as const

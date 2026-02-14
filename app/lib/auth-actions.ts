@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
 import { Prisma } from "@/app/generated/prisma/client";
+import prisma from "@/lib/prisma";
 
 import { signupRoleOptions } from "./constants";
 import { hashPassword, verifyPassword } from "./auth";
@@ -181,6 +182,25 @@ export async function signIn(formData: FormData) {
     redirect("/login?error=suspended");
   }
 
+  const staffMembership = await prisma.restaurantStaffMember.findFirst({
+    where: { userId: user.id },
+    select: { id: true, status: true },
+  });
+  if (staffMembership?.status === "DISABLED") {
+    redirect("/login?error=staff-disabled");
+  }
+  if (staffMembership?.status === "INVITED") {
+    await prisma.restaurantStaffMember.update({
+      where: { id: staffMembership.id },
+      data: {
+        status: "ACTIVE",
+        acceptedAt: new Date(),
+        inviteToken: null,
+        inviteExpiresAt: null,
+      },
+    });
+  }
+
   if (user.status === "EMAIL_UNVERIFIED") {
     redirect(`/signup/verify?email=${encodeURIComponent(email)}`);
   }
@@ -201,7 +221,10 @@ export async function signIn(formData: FormData) {
     maxAge: 60 * 60 * 24 * 30,
   });
 
-  redirect(getPostLoginRedirectPath({ role: user.role, status: user.status }));
+  const redirectPath = staffMembership
+    ? "/restaurant"
+    : getPostLoginRedirectPath({ role: user.role, status: user.status });
+  redirect(redirectPath);
 }
 
 export async function signOut() {
@@ -212,6 +235,12 @@ export async function signOut() {
     await deleteSessionByToken(token);
   }
 
-  cookieStore.delete("foodify_session");
+  cookieStore.set("foodify_session", "", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+  cookieStore.delete({ name: "foodify_session", path: "/" });
   redirect("/login");
 }

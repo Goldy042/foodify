@@ -54,25 +54,25 @@ export default async function CustomerProfilePage({ searchParams }: PageProps) {
       : null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,_hsl(30_96%_94%),_hsl(36_38%_98%)_40%,_hsl(36_26%_99%))]">
       <AppHeader />
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 pb-20 pt-10">
-        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/90 via-amber-400/80 to-amber-200/80 p-8 text-primary-foreground shadow-sm">
-          <div className="pointer-events-none absolute -right-10 -top-16 h-36 w-36 rounded-full bg-white/20 blur-3xl" />
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 pb-16 pt-8 sm:px-6">
+        <section className="relative overflow-hidden rounded-3xl border border-orange-200/70 bg-gradient-to-br from-orange-500 via-amber-400 to-rose-400 p-6 text-white shadow-lg md:p-8">
+          <div className="pointer-events-none absolute -right-10 -top-16 h-36 w-36 rounded-full bg-white/25 blur-3xl" />
           <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/80">
+              <p className="text-xs uppercase tracking-[0.35em] text-white/80">
                 Profile
               </p>
               <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-                Update your delivery details.
+                Delivery details and account preferences.
               </h1>
-              <p className="text-sm text-primary-foreground/85">
-                Keep your address and delivery notes up to date for smoother handoffs.
+              <p className="text-sm text-white/90">
+                Keep your address current so delivery estimates stay accurate.
               </p>
             </div>
-            <Button asChild variant="secondary" className="bg-white/90">
-              <Link href="/customer">Back to dashboard</Link>
+            <Button asChild variant="secondary" className="bg-white/95 text-zinc-900">
+              <Link href="/app">Back to marketplace</Link>
             </Button>
           </div>
         </section>
@@ -90,7 +90,7 @@ export default async function CustomerProfilePage({ searchParams }: PageProps) {
         ) : null}
 
         <form action={updateCustomerProfile} className="grid gap-6">
-          <Card className="border-border/60 bg-card/80 shadow-sm">
+          <Card className="border-border/60 bg-card/90 shadow-sm">
             <CardHeader>
               <CardTitle className="text-xl">Customer details</CardTitle>
             </CardHeader>
@@ -157,7 +157,7 @@ export default async function CustomerProfilePage({ searchParams }: PageProps) {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">
-              Changes take effect immediately for new orders.
+              Changes apply immediately for new orders.
             </p>
             <Button type="submit" className="sm:w-auto">
               Save changes

@@ -24,7 +24,7 @@ const roleCards = [
     description:
       "Order in minutes, track your rider, or switch to pickup when you prefer.",
     icon: UtensilsCrossed,
-    href: "/customer",
+    href: "/app",
   },
   {
     title: "Restaurants",
@@ -421,5 +421,6 @@ export function HomePage() {
     </div>
   );
 }
+
 
 

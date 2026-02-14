@@ -2,16 +2,18 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { getUserFromSession } from "@/app/lib/session";
-import { Role } from "@/app/generated/prisma/client";
+import { RestaurantStaffRole, Role } from "@/app/generated/prisma/client";
 import { signOut } from "@/app/lib/auth-actions";
+import prisma from "@/lib/prisma";
 
-function getRoleNav(userRole: Role, userStatus: string) {
+type NavItem = { label: string; href: string };
+
+function getRoleNav(userRole: Role, userStatus: string): NavItem[] {
   if (userRole === Role.CUSTOMER) {
     return [
-      { label: "Dashboard", href: "/customer" },
-      { label: "Restaurants", href: "/restaurants" },
-      { label: "Orders", href: "/customer/orders" },
-      { label: "Profile", href: "/customer/profile" },
+      { label: "Marketplace", href: "/app" },
+      { label: "Orders", href: "/app/orders" },
+      { label: "Profile", href: "/app/profile" },
     ];
   }
 
@@ -38,13 +40,52 @@ function getRoleNav(userRole: Role, userStatus: string) {
   return [];
 }
 
+function getStaffNav(staffRole: RestaurantStaffRole): NavItem[] {
+  const nav: NavItem[] = [
+    { label: "Dashboard", href: "/restaurant" },
+    { label: "Orders", href: "/restaurant/orders" },
+  ];
+
+  if (staffRole === "MANAGER" || staffRole === "SUPERVISOR") {
+    nav.push({ label: "Menu", href: "/restaurant/menu" });
+  }
+
+  if (staffRole === "MANAGER") {
+    nav.push({ label: "Staff", href: "/restaurant/staff" });
+    nav.push({ label: "Settings", href: "/restaurant/settings" });
+  }
+
+  return nav;
+}
+
 export async function AppHeader() {
   const user = await getUserFromSession();
   if (!user) {
     return null;
   }
 
-  const navItems = getRoleNav(user.role, user.status);
+  const [ownedRestaurant, activeStaffMembership] = await Promise.all([
+    prisma.restaurantProfile.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    }),
+    prisma.restaurantStaffMember.findFirst({
+      where: {
+        userId: user.id,
+        status: "ACTIVE",
+      },
+      select: { role: true, status: true },
+    }),
+  ]);
+
+  const isRestaurantOwner = Boolean(ownedRestaurant);
+  const isActiveStaff = Boolean(activeStaffMembership);
+
+  const navItems = isRestaurantOwner
+    ? getRoleNav(Role.RESTAURANT, user.status)
+    : activeStaffMembership
+      ? getStaffNav(activeStaffMembership.role)
+      : getRoleNav(user.role, user.status);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
@@ -53,9 +94,9 @@ export async function AppHeader() {
           <Link href={navItems[0]?.href ?? "/"} className="font-display text-lg font-semibold">
             Foodify
           </Link>
-          {user.role === Role.CUSTOMER ? (
+          {user.role === Role.CUSTOMER && !isActiveStaff ? (
             <Button asChild size="sm" className="md:hidden">
-              <Link href="/customer/cart">Cart</Link>
+              <Link href="/app/cart">Cart</Link>
             </Button>
           ) : null}
         </div>
@@ -76,11 +117,11 @@ export async function AppHeader() {
           </form>
         </nav>
         <div className="hidden items-center gap-3 md:flex">
-          {user.role === Role.CUSTOMER ? (
+          {user.role === Role.CUSTOMER && !isActiveStaff ? (
             <Button asChild size="sm">
-              <Link href="/customer/cart">Cart</Link>
+              <Link href="/app/cart">Cart</Link>
             </Button>
-          ) : user.role === Role.RESTAURANT ? (
+          ) : isRestaurantOwner || isActiveStaff ? (
             <Button asChild size="sm" variant="outline">
               <Link href="/restaurant">Restaurant dashboard</Link>
             </Button>
@@ -101,3 +142,4 @@ export async function AppHeader() {
     </header>
   );
 }
+

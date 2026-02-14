@@ -70,9 +70,10 @@ export function CartStickySummary({ restaurantId }: CartStickySummaryProps) {
           )}
         </div>
         <Button asChild size="sm">
-          <Link href="/customer/cart">View cart</Link>
+          <Link href="/app/cart">View cart</Link>
         </Button>
       </div>
     </div>
   );
 }
+

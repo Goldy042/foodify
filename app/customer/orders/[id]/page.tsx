@@ -59,9 +59,16 @@ export default async function CustomerOrderPage({
   const showDeliveryCode = ["PICKED_UP", "EN_ROUTE", "DELIVERED"].includes(
     order.status
   );
-  const showTracking = ["PAID", "ACCEPTED", "PREPARING", "READY_FOR_PICKUP", "DRIVER_ASSIGNED", "PICKED_UP", "EN_ROUTE", "DELIVERED"].includes(
-    order.status
-  );
+  const showTracking = [
+    "PAID",
+    "ACCEPTED",
+    "PREPARING",
+    "READY_FOR_PICKUP",
+    "DRIVER_ASSIGNED",
+    "PICKED_UP",
+    "EN_ROUTE",
+    "DELIVERED",
+  ].includes(order.status);
   const timeline = [
     "PLACED",
     "PAID",
@@ -81,26 +88,25 @@ export default async function CustomerOrderPage({
       .join(" ");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_hsl(30_96%_94%),_hsl(36_38%_98%)_40%,_hsl(36_26%_99%))]">
       <AppHeader />
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 pb-20 pt-10">
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 pb-16 pt-8 sm:px-6">
         {resolvedSearchParams.placed ? <ClearCartOnLoad /> : null}
-        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/90 via-amber-400/80 to-amber-200/80 p-8 text-primary-foreground shadow-sm">
-          <div className="pointer-events-none absolute -right-10 -top-16 h-36 w-36 rounded-full bg-white/20 blur-3xl" />
+
+        <section className="relative overflow-hidden rounded-3xl border border-orange-200/70 bg-gradient-to-br from-orange-500 via-amber-400 to-rose-400 p-6 text-white shadow-lg md:p-8">
+          <div className="pointer-events-none absolute -right-10 -top-16 h-36 w-36 rounded-full bg-white/25 blur-3xl" />
           <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/80">
-                Order placed
+              <p className="text-xs uppercase tracking-[0.35em] text-white/80">
+                Order details
               </p>
               <h1 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
                 Order {order.id.slice(0, 8).toUpperCase()}
               </h1>
-              <p className="text-sm text-primary-foreground/85">
-                Current status: {order.status}
-              </p>
+              <p className="text-sm text-white/90">Current status: {order.status}</p>
             </div>
-            <Button asChild variant="secondary" className="bg-white/90">
-              <Link href="/customer/orders">Back to orders</Link>
+            <Button asChild variant="secondary" className="bg-white/95 text-zinc-900">
+              <Link href="/app/orders">Back to orders</Link>
             </Button>
           </div>
         </section>
@@ -117,157 +123,162 @@ export default async function CustomerOrderPage({
           </div>
         ) : null}
 
-        <Card className="border-border/60 bg-card/80 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-xl">Items</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            {order.items.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col gap-2 border-b border-border/70 pb-4 last:border-b-0 last:pb-0"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{item.menuItem.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {measurementEnumToLabel[item.measurementUnit]} • Qty{" "}
-                      {item.quantity}
-                    </p>
-                  </div>
-                  <span className="text-sm font-semibold">
-                    {formatCurrency(Number(item.lineTotal))}
-                  </span>
-                </div>
-                {item.modifiers.length > 0 ? (
-                  <p className="text-xs text-muted-foreground">
-                    {item.modifiers
-                      .map(
-                        (modifier) =>
-                          `${modifier.modifierOption.name} x${modifier.quantity}`
-                      )
-                      .join(", ")}
-                  </p>
-                ) : null}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {showTracking ? (
-          <Card className="border-border/60 bg-card/80 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-xl">Order tracking</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ol className="grid gap-3 text-sm">
-                {timeline.map((status, index) => {
-                  const isComplete = currentIndex >= index;
-                  return (
-                    <li
-                      key={status}
-                      className={`flex items-center gap-3 rounded-lg border px-3 py-2 ${
-                        isComplete
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                          : "border-border/70 bg-background/60 text-muted-foreground"
-                      }`}
-                    >
-                      <span className="text-xs uppercase tracking-[0.3em]">
-                        {index + 1}
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="space-y-6">
+            <Card className="border-border/60 bg-card/90 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-xl">Items</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                {order.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex flex-col gap-2 border-b border-border/70 pb-4 last:border-b-0 last:pb-0"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-medium">{item.menuItem.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {measurementEnumToLabel[item.measurementUnit]} | Qty {item.quantity}
+                        </p>
+                      </div>
+                      <span className="text-sm font-semibold">
+                        {formatCurrency(Number(item.lineTotal))}
                       </span>
-                      <span className="font-medium">{statusLabel(status)}</span>
-                    </li>
-                  );
-                })}
-              </ol>
-            </CardContent>
-          </Card>
-        ) : null}
+                    </div>
+                    {item.modifiers.length > 0 ? (
+                      <p className="text-xs text-muted-foreground">
+                        {item.modifiers
+                          .map(
+                            (modifier) =>
+                              `${modifier.modifierOption.name} x${modifier.quantity}`
+                          )
+                          .join(", ")}
+                      </p>
+                    ) : null}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
 
-        {showDeliveryCode ? (
-          <Card className="border-border/60 bg-card/80 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-xl">Delivery confirmation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p className="text-muted-foreground">
-                Share this code with your driver to complete delivery.
-              </p>
-              <div className="rounded-lg border border-border/70 bg-muted/40 px-4 py-3 text-center text-2xl font-semibold tracking-[0.4em]">
-                {order.deliveryConfirmationCode}
-              </div>
-            </CardContent>
-          </Card>
-        ) : null}
-
-        <Card className="border-border/60 bg-card/80 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-xl">Payment</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Status</span>
-              <span>{order.payment?.status ?? "UNPAID"}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Provider</span>
-              <span>{order.payment?.provider ?? "Not started"}</span>
-            </div>
-            {order.payment?.providerReference ? (
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Reference</span>
-                <span>{order.payment.providerReference}</span>
-              </div>
+            {showTracking ? (
+              <Card className="border-border/60 bg-card/90 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl">Order tracking</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ol className="grid gap-3 text-sm">
+                    {timeline.map((status, index) => {
+                      const isComplete = currentIndex >= index;
+                      return (
+                        <li
+                          key={status}
+                          className={`flex items-center gap-3 rounded-lg border px-3 py-2 ${
+                            isComplete
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                              : "border-border/70 bg-background/60 text-muted-foreground"
+                          }`}
+                        >
+                          <span className="text-xs uppercase tracking-[0.3em]">
+                            {index + 1}
+                          </span>
+                          <span className="font-medium">{statusLabel(status)}</span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </CardContent>
+              </Card>
             ) : null}
-            {showPaymentActions ? (
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <form action={simulatePayment} className="w-full">
-                  <input type="hidden" name="orderId" value={order.id} />
-                  <input type="hidden" name="outcome" value="success" />
-                  <Button type="submit" className="w-full">
-                    Pay now (demo)
-                  </Button>
-                </form>
-                <form action={simulatePayment} className="w-full">
-                  <input type="hidden" name="orderId" value={order.id} />
-                  <input type="hidden" name="outcome" value="failed" />
-                  <Button type="submit" variant="outline" className="w-full">
-                    Simulate failure
-                  </Button>
-                </form>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                Payment is locked once the order moves beyond placement.
-              </p>
-            )}
-          </CardContent>
-        </Card>
 
-        <Card className="border-border/60 bg-card/80 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-xl">Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Items subtotal</span>
-              <span>{formatCurrency(Number(order.itemsSubtotal))}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Service fee</span>
-              <span>{formatCurrency(Number(order.serviceFee))}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Delivery fee</span>
-              <span>{formatCurrency(Number(order.deliveryFee))}</span>
-            </div>
-            <div className="h-px w-full bg-border/70" />
-            <div className="flex items-center justify-between text-base font-semibold">
-              <span>Total</span>
-              <span>{formatCurrency(Number(order.total))}</span>
-            </div>
-          </CardContent>
-        </Card>
+            {showDeliveryCode ? (
+              <Card className="border-border/60 bg-card/90 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl">Delivery confirmation</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <p className="text-muted-foreground">
+                    Share this code with your driver to complete delivery.
+                  </p>
+                  <div className="rounded-lg border border-border/70 bg-muted/40 px-4 py-3 text-center text-2xl font-semibold tracking-[0.4em]">
+                    {order.deliveryConfirmationCode}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
+          </div>
+
+          <div className="space-y-6">
+            <Card className="border-border/60 bg-card/95 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-xl">Payment</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Status</span>
+                  <span>{order.payment?.status ?? "UNPAID"}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Provider</span>
+                  <span>{order.payment?.provider ?? "Not started"}</span>
+                </div>
+                {order.payment?.providerReference ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Reference</span>
+                    <span>{order.payment.providerReference}</span>
+                  </div>
+                ) : null}
+                {showPaymentActions ? (
+                  <div className="flex flex-col gap-3">
+                    <form action={simulatePayment} className="w-full">
+                      <input type="hidden" name="orderId" value={order.id} />
+                      <input type="hidden" name="outcome" value="success" />
+                      <Button type="submit" className="w-full">
+                        Pay now (demo)
+                      </Button>
+                    </form>
+                    <form action={simulatePayment} className="w-full">
+                      <input type="hidden" name="orderId" value={order.id} />
+                      <input type="hidden" name="outcome" value="failed" />
+                      <Button type="submit" variant="outline" className="w-full">
+                        Simulate failure
+                      </Button>
+                    </form>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Payment is locked once the order moves beyond placement.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/60 bg-card/95 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-xl">Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Items subtotal</span>
+                  <span>{formatCurrency(Number(order.itemsSubtotal))}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Service fee</span>
+                  <span>{formatCurrency(Number(order.serviceFee))}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Delivery fee</span>
+                  <span>{formatCurrency(Number(order.deliveryFee))}</span>
+                </div>
+                <div className="h-px w-full bg-border/70" />
+                <div className="flex items-center justify-between text-base font-semibold">
+                  <span>Total</span>
+                  <span>{formatCurrency(Number(order.total))}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </main>
     </div>
   );

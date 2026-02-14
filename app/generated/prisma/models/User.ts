@@ -224,6 +224,7 @@ export type UserWhereInput = {
   driverAssignments?: Prisma.DriverAssignmentListRelationFilter
   payoutsReleased?: Prisma.PayoutLedgerEntryListRelationFilter
   refundsIssued?: Prisma.RefundListRelationFilter
+  staffMembership?: Prisma.XOR<Prisma.RestaurantStaffMemberNullableScalarRelationFilter, Prisma.RestaurantStaffMemberWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -246,6 +247,7 @@ export type UserOrderByWithRelationInput = {
   driverAssignments?: Prisma.DriverAssignmentOrderByRelationAggregateInput
   payoutsReleased?: Prisma.PayoutLedgerEntryOrderByRelationAggregateInput
   refundsIssued?: Prisma.RefundOrderByRelationAggregateInput
+  staffMembership?: Prisma.RestaurantStaffMemberOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -271,6 +273,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   driverAssignments?: Prisma.DriverAssignmentListRelationFilter
   payoutsReleased?: Prisma.PayoutLedgerEntryListRelationFilter
   refundsIssued?: Prisma.RefundListRelationFilter
+  staffMembership?: Prisma.XOR<Prisma.RestaurantStaffMemberNullableScalarRelationFilter, Prisma.RestaurantStaffMemberWhereInput> | null
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -323,6 +326,7 @@ export type UserCreateInput = {
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -345,6 +349,7 @@ export type UserUncheckedCreateInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -367,6 +372,7 @@ export type UserUpdateInput = {
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -389,6 +395,7 @@ export type UserUncheckedUpdateInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -549,6 +556,22 @@ export type UserUpdateOneRequiredWithoutRestaurantProfileNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRestaurantProfileInput, Prisma.UserUpdateWithoutRestaurantProfileInput>, Prisma.UserUncheckedUpdateWithoutRestaurantProfileInput>
 }
 
+export type UserCreateNestedOneWithoutStaffMembershipInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStaffMembershipInput, Prisma.UserUncheckedCreateWithoutStaffMembershipInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStaffMembershipInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutStaffMembershipNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutStaffMembershipInput, Prisma.UserUncheckedCreateWithoutStaffMembershipInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutStaffMembershipInput
+  upsert?: Prisma.UserUpsertWithoutStaffMembershipInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutStaffMembershipInput, Prisma.UserUpdateWithoutStaffMembershipInput>, Prisma.UserUncheckedUpdateWithoutStaffMembershipInput>
+}
+
 export type UserCreateNestedOneWithoutDriverProfileInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutDriverProfileInput, Prisma.UserUncheckedCreateWithoutDriverProfileInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutDriverProfileInput
@@ -658,6 +681,7 @@ export type UserCreateWithoutVerificationTokensInput = {
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutVerificationTokensInput = {
@@ -679,6 +703,7 @@ export type UserUncheckedCreateWithoutVerificationTokensInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutVerificationTokensInput = {
@@ -716,6 +741,7 @@ export type UserUpdateWithoutVerificationTokensInput = {
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerificationTokensInput = {
@@ -737,6 +763,7 @@ export type UserUncheckedUpdateWithoutVerificationTokensInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -758,6 +785,7 @@ export type UserCreateWithoutSessionsInput = {
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -779,6 +807,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -816,6 +845,7 @@ export type UserUpdateWithoutSessionsInput = {
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -837,6 +867,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCustomerProfileInput = {
@@ -858,6 +889,7 @@ export type UserCreateWithoutCustomerProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCustomerProfileInput = {
@@ -879,6 +911,7 @@ export type UserUncheckedCreateWithoutCustomerProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCustomerProfileInput = {
@@ -916,6 +949,7 @@ export type UserUpdateWithoutCustomerProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCustomerProfileInput = {
@@ -937,6 +971,7 @@ export type UserUncheckedUpdateWithoutCustomerProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRestaurantProfileInput = {
@@ -958,6 +993,7 @@ export type UserCreateWithoutRestaurantProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRestaurantProfileInput = {
@@ -979,6 +1015,7 @@ export type UserUncheckedCreateWithoutRestaurantProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRestaurantProfileInput = {
@@ -1016,6 +1053,7 @@ export type UserUpdateWithoutRestaurantProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRestaurantProfileInput = {
@@ -1029,6 +1067,111 @@ export type UserUncheckedUpdateWithoutRestaurantProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  driverProfile?: Prisma.DriverProfileUncheckedUpdateOneWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  customerOrders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  driverOrders?: Prisma.OrderUncheckedUpdateManyWithoutDriverNestedInput
+  driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
+  payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
+  refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutStaffMembershipInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash: string
+  role: $Enums.Role
+  status?: $Enums.AccountStatus
+  isSuspended?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customerProfile?: Prisma.CustomerProfileCreateNestedOneWithoutUserInput
+  restaurantProfile?: Prisma.RestaurantProfileCreateNestedOneWithoutUserInput
+  driverProfile?: Prisma.DriverProfileCreateNestedOneWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  customerOrders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  driverOrders?: Prisma.OrderCreateNestedManyWithoutDriverInput
+  driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
+  payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
+  refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+}
+
+export type UserUncheckedCreateWithoutStaffMembershipInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash: string
+  role: $Enums.Role
+  status?: $Enums.AccountStatus
+  isSuspended?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customerProfile?: Prisma.CustomerProfileUncheckedCreateNestedOneWithoutUserInput
+  restaurantProfile?: Prisma.RestaurantProfileUncheckedCreateNestedOneWithoutUserInput
+  driverProfile?: Prisma.DriverProfileUncheckedCreateNestedOneWithoutUserInput
+  verificationTokens?: Prisma.VerificationTokenUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  customerOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  driverOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutDriverInput
+  driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
+  payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
+  refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+}
+
+export type UserCreateOrConnectWithoutStaffMembershipInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutStaffMembershipInput, Prisma.UserUncheckedCreateWithoutStaffMembershipInput>
+}
+
+export type UserUpsertWithoutStaffMembershipInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutStaffMembershipInput, Prisma.UserUncheckedUpdateWithoutStaffMembershipInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutStaffMembershipInput, Prisma.UserUncheckedCreateWithoutStaffMembershipInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutStaffMembershipInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutStaffMembershipInput, Prisma.UserUncheckedUpdateWithoutStaffMembershipInput>
+}
+
+export type UserUpdateWithoutStaffMembershipInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customerProfile?: Prisma.CustomerProfileUpdateOneWithoutUserNestedInput
+  restaurantProfile?: Prisma.RestaurantProfileUpdateOneWithoutUserNestedInput
+  driverProfile?: Prisma.DriverProfileUpdateOneWithoutUserNestedInput
+  verificationTokens?: Prisma.VerificationTokenUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  customerOrders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  driverOrders?: Prisma.OrderUpdateManyWithoutDriverNestedInput
+  driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
+  payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
+  refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+}
+
+export type UserUncheckedUpdateWithoutStaffMembershipInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  status?: Prisma.EnumAccountStatusFieldUpdateOperationsInput | $Enums.AccountStatus
+  isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customerProfile?: Prisma.CustomerProfileUncheckedUpdateOneWithoutUserNestedInput
+  restaurantProfile?: Prisma.RestaurantProfileUncheckedUpdateOneWithoutUserNestedInput
   driverProfile?: Prisma.DriverProfileUncheckedUpdateOneWithoutUserNestedInput
   verificationTokens?: Prisma.VerificationTokenUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -1058,6 +1201,7 @@ export type UserCreateWithoutDriverProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDriverProfileInput = {
@@ -1079,6 +1223,7 @@ export type UserUncheckedCreateWithoutDriverProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDriverProfileInput = {
@@ -1116,6 +1261,7 @@ export type UserUpdateWithoutDriverProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDriverProfileInput = {
@@ -1137,6 +1283,7 @@ export type UserUncheckedUpdateWithoutDriverProfileInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCustomerOrdersInput = {
@@ -1158,6 +1305,7 @@ export type UserCreateWithoutCustomerOrdersInput = {
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCustomerOrdersInput = {
@@ -1179,6 +1327,7 @@ export type UserUncheckedCreateWithoutCustomerOrdersInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCustomerOrdersInput = {
@@ -1205,6 +1354,7 @@ export type UserCreateWithoutDriverOrdersInput = {
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDriverOrdersInput = {
@@ -1226,6 +1376,7 @@ export type UserUncheckedCreateWithoutDriverOrdersInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDriverOrdersInput = {
@@ -1263,6 +1414,7 @@ export type UserUpdateWithoutCustomerOrdersInput = {
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCustomerOrdersInput = {
@@ -1284,6 +1436,7 @@ export type UserUncheckedUpdateWithoutCustomerOrdersInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutDriverOrdersInput = {
@@ -1316,6 +1469,7 @@ export type UserUpdateWithoutDriverOrdersInput = {
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDriverOrdersInput = {
@@ -1337,6 +1491,7 @@ export type UserUncheckedUpdateWithoutDriverOrdersInput = {
   driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDriverAssignmentsInput = {
@@ -1358,6 +1513,7 @@ export type UserCreateWithoutDriverAssignmentsInput = {
   driverOrders?: Prisma.OrderCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDriverAssignmentsInput = {
@@ -1379,6 +1535,7 @@ export type UserUncheckedCreateWithoutDriverAssignmentsInput = {
   driverOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDriverAssignmentsInput = {
@@ -1416,6 +1573,7 @@ export type UserUpdateWithoutDriverAssignmentsInput = {
   driverOrders?: Prisma.OrderUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDriverAssignmentsInput = {
@@ -1437,6 +1595,7 @@ export type UserUncheckedUpdateWithoutDriverAssignmentsInput = {
   driverOrders?: Prisma.OrderUncheckedUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
   refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPayoutsReleasedInput = {
@@ -1458,6 +1617,7 @@ export type UserCreateWithoutPayoutsReleasedInput = {
   driverOrders?: Prisma.OrderCreateNestedManyWithoutDriverInput
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   refundsIssued?: Prisma.RefundCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPayoutsReleasedInput = {
@@ -1479,6 +1639,7 @@ export type UserUncheckedCreateWithoutPayoutsReleasedInput = {
   driverOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutDriverInput
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   refundsIssued?: Prisma.RefundUncheckedCreateNestedManyWithoutRefundedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPayoutsReleasedInput = {
@@ -1516,6 +1677,7 @@ export type UserUpdateWithoutPayoutsReleasedInput = {
   driverOrders?: Prisma.OrderUpdateManyWithoutDriverNestedInput
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   refundsIssued?: Prisma.RefundUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPayoutsReleasedInput = {
@@ -1537,6 +1699,7 @@ export type UserUncheckedUpdateWithoutPayoutsReleasedInput = {
   driverOrders?: Prisma.OrderUncheckedUpdateManyWithoutDriverNestedInput
   driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
   refundsIssued?: Prisma.RefundUncheckedUpdateManyWithoutRefundedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRefundsIssuedInput = {
@@ -1558,6 +1721,7 @@ export type UserCreateWithoutRefundsIssuedInput = {
   driverOrders?: Prisma.OrderCreateNestedManyWithoutDriverInput
   driverAssignments?: Prisma.DriverAssignmentCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryCreateNestedManyWithoutReleasedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRefundsIssuedInput = {
@@ -1579,6 +1743,7 @@ export type UserUncheckedCreateWithoutRefundsIssuedInput = {
   driverOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutDriverInput
   driverAssignments?: Prisma.DriverAssignmentUncheckedCreateNestedManyWithoutDriverInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedCreateNestedManyWithoutReleasedByAdminInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRefundsIssuedInput = {
@@ -1616,6 +1781,7 @@ export type UserUpdateWithoutRefundsIssuedInput = {
   driverOrders?: Prisma.OrderUpdateManyWithoutDriverNestedInput
   driverAssignments?: Prisma.DriverAssignmentUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUpdateManyWithoutReleasedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefundsIssuedInput = {
@@ -1637,6 +1803,7 @@ export type UserUncheckedUpdateWithoutRefundsIssuedInput = {
   driverOrders?: Prisma.OrderUncheckedUpdateManyWithoutDriverNestedInput
   driverAssignments?: Prisma.DriverAssignmentUncheckedUpdateManyWithoutDriverNestedInput
   payoutsReleased?: Prisma.PayoutLedgerEntryUncheckedUpdateManyWithoutReleasedByAdminNestedInput
+  staffMembership?: Prisma.RestaurantStaffMemberUncheckedUpdateOneWithoutUserNestedInput
 }
 
 
@@ -1744,6 +1911,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   driverAssignments?: boolean | Prisma.User$driverAssignmentsArgs<ExtArgs>
   payoutsReleased?: boolean | Prisma.User$payoutsReleasedArgs<ExtArgs>
   refundsIssued?: boolean | Prisma.User$refundsIssuedArgs<ExtArgs>
+  staffMembership?: boolean | Prisma.User$staffMembershipArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1795,6 +1963,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   driverAssignments?: boolean | Prisma.User$driverAssignmentsArgs<ExtArgs>
   payoutsReleased?: boolean | Prisma.User$payoutsReleasedArgs<ExtArgs>
   refundsIssued?: boolean | Prisma.User$refundsIssuedArgs<ExtArgs>
+  staffMembership?: boolean | Prisma.User$staffMembershipArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1813,6 +1982,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     driverAssignments: Prisma.$DriverAssignmentPayload<ExtArgs>[]
     payoutsReleased: Prisma.$PayoutLedgerEntryPayload<ExtArgs>[]
     refundsIssued: Prisma.$RefundPayload<ExtArgs>[]
+    staffMembership: Prisma.$RestaurantStaffMemberPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2228,6 +2398,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   driverAssignments<T extends Prisma.User$driverAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$driverAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DriverAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payoutsReleased<T extends Prisma.User$payoutsReleasedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$payoutsReleasedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayoutLedgerEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refundsIssued<T extends Prisma.User$refundsIssuedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refundsIssuedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  staffMembership<T extends Prisma.User$staffMembershipArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$staffMembershipArgs<ExtArgs>>): Prisma.Prisma__RestaurantStaffMemberClient<runtime.Types.Result.GetResult<Prisma.$RestaurantStaffMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2876,6 +3047,25 @@ export type User$refundsIssuedArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.RefundScalarFieldEnum | Prisma.RefundScalarFieldEnum[]
+}
+
+/**
+ * User.staffMembership
+ */
+export type User$staffMembershipArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RestaurantStaffMember
+   */
+  select?: Prisma.RestaurantStaffMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RestaurantStaffMember
+   */
+  omit?: Prisma.RestaurantStaffMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RestaurantStaffMemberInclude<ExtArgs> | null
+  where?: Prisma.RestaurantStaffMemberWhereInput
 }
 
 /**

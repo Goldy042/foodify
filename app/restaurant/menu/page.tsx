@@ -22,7 +22,7 @@ import {
   menuCategoryLabelToEnum,
 } from "@/app/lib/db";
 import { formatCurrency } from "@/app/lib/pricing";
-import { requireRestaurantUser } from "@/app/restaurant/_lib/guards";
+import { requireRestaurantAccess } from "@/app/restaurant/_lib/access";
 
 type PageProps = {
   searchParams?: Promise<{ status?: string; error?: string }> | { status?: string; error?: string };
@@ -151,10 +151,11 @@ function parseModifierGroupsConfig(input: string): ParsedModifierGroupConfig[] |
 
 export default async function RestaurantMenuPage({ searchParams }: PageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
-  const user = await requireRestaurantUser();
+  const access = await requireRestaurantAccess("MANAGE_MENU");
+  const restaurantId = access.restaurantId;
 
   const workspace = await prisma.restaurantProfile.findUnique({
-    where: { userId: user.id },
+    where: { id: restaurantId },
     include: {
       menuCategories: {
         orderBy: { createdAt: "asc" },
@@ -178,7 +179,8 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
   async function addMenuItem(formData: FormData) {
     "use server";
 
-    const authedUser = await requireRestaurantUser();
+    const authedAccess = await requireRestaurantAccess("MANAGE_MENU");
+    const authedRestaurantId = authedAccess.restaurantId;
 
     const itemName = String(formData.get("itemName") || "").trim();
     const description = String(formData.get("description") || "").trim();
@@ -216,19 +218,11 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
       redirect("/restaurant/menu?error=invalid-menu-image");
     }
 
-    const restaurant = await prisma.restaurantProfile.findUnique({
-      where: { userId: authedUser.id },
-      select: { id: true },
-    });
-    if (!restaurant) {
-      redirect("/onboarding/restaurant");
-    }
-
     const baseImageUrl = uploadedImageUrl || buildBaseImageUrl(itemName);
 
     let categoryRecord = await prisma.menuCategory.findFirst({
       where: {
-        restaurantId: restaurant.id,
+        restaurantId: authedRestaurantId,
         category,
       },
       select: { id: true },
@@ -237,7 +231,7 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
     if (!categoryRecord) {
       categoryRecord = await prisma.menuCategory.create({
         data: {
-          restaurantId: restaurant.id,
+          restaurantId: authedRestaurantId,
           category,
         },
         select: { id: true },
@@ -246,7 +240,7 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
 
     await prisma.menuItem.create({
       data: {
-        restaurantId: restaurant.id,
+        restaurantId: authedRestaurantId,
         categoryId: categoryRecord.id,
         name: itemName,
         description: description || null,
@@ -286,7 +280,8 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
   async function editMenuItem(formData: FormData) {
     "use server";
 
-    const authedUser = await requireRestaurantUser();
+    const authedAccess = await requireRestaurantAccess("MANAGE_MENU");
+    const authedRestaurantId = authedAccess.restaurantId;
 
     const menuItemId = String(formData.get("menuItemId") || "").trim();
     const itemName = String(formData.get("itemName") || "").trim();
@@ -320,18 +315,10 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
       redirect("/restaurant/menu?error=invalid-menu-image");
     }
 
-    const restaurant = await prisma.restaurantProfile.findUnique({
-      where: { userId: authedUser.id },
-      select: { id: true },
-    });
-    if (!restaurant) {
-      redirect("/onboarding/restaurant");
-    }
-
     const existingMenuItem = await prisma.menuItem.findFirst({
       where: {
         id: menuItemId,
-        restaurantId: restaurant.id,
+        restaurantId: authedRestaurantId,
       },
       select: {
         id: true,
@@ -361,7 +348,7 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
 
     let categoryRecord = await prisma.menuCategory.findFirst({
       where: {
-        restaurantId: restaurant.id,
+        restaurantId: authedRestaurantId,
         category,
       },
       select: { id: true },
@@ -370,7 +357,7 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
     if (!categoryRecord) {
       categoryRecord = await prisma.menuCategory.create({
         data: {
-          restaurantId: restaurant.id,
+          restaurantId: authedRestaurantId,
           category,
         },
         select: { id: true },
@@ -416,25 +403,18 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
   async function removeMenuItem(formData: FormData) {
     "use server";
 
-    const authedUser = await requireRestaurantUser();
+    const authedAccess = await requireRestaurantAccess("MANAGE_MENU");
+    const authedRestaurantId = authedAccess.restaurantId;
     const menuItemId = String(formData.get("menuItemId") || "").trim();
 
     if (!menuItemId) {
       redirect("/restaurant/menu?error=menu-item-not-found");
     }
 
-    const restaurant = await prisma.restaurantProfile.findUnique({
-      where: { userId: authedUser.id },
-      select: { id: true },
-    });
-    if (!restaurant) {
-      redirect("/onboarding/restaurant");
-    }
-
     const existingMenuItem = await prisma.menuItem.findFirst({
       where: {
         id: menuItemId,
-        restaurantId: restaurant.id,
+        restaurantId: authedRestaurantId,
       },
       select: {
         id: true,
@@ -479,7 +459,7 @@ export default async function RestaurantMenuPage({ searchParams }: PageProps) {
       await tx.menuItem.delete({ where: { id: existingMenuItem.id } });
       await tx.menuCategory.deleteMany({
         where: {
-          restaurantId: restaurant.id,
+          restaurantId: authedRestaurantId,
           items: { none: {} },
         },
       });

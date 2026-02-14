@@ -7,6 +7,7 @@ import {
 } from "@/app/generated/prisma/client";
 
 import prisma from "@/lib/prisma";
+import { generateToken } from "@/app/lib/auth";
 import { AppHeader } from "@/components/app/app-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +18,7 @@ import {
   restaurantStaffRoleLabelToEnum,
   restaurantStaffStatusEnumToLabel,
 } from "@/app/lib/db";
-import { requireRestaurantUser } from "@/app/restaurant/_lib/guards";
+import { requireRestaurantAccess } from "@/app/restaurant/_lib/access";
 
 type PageProps = {
   searchParams?:
@@ -39,7 +40,7 @@ const STAFF_STATUSES: RestaurantStaffStatus[] = [
 ];
 
 const allowedStatusTransitions: Record<RestaurantStaffStatus, RestaurantStaffStatus[]> = {
-  INVITED: ["ACTIVE", "DISABLED"],
+  INVITED: ["DISABLED"],
   ACTIVE: ["DISABLED"],
   DISABLED: ["ACTIVE"],
 };
@@ -58,6 +59,7 @@ const errorMessages: Record<string, string> = {
   "staff-not-found": "Staff member was not found for your restaurant.",
   "invalid-status-transition": "This status change is not allowed.",
   "staff-email-exists": "A staff member with this email already exists.",
+  "staff-email-linked": "This email is already linked to an active staff account.",
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -78,32 +80,16 @@ function canTransitionStatus(from: RestaurantStaffStatus, to: RestaurantStaffSta
   return allowedStatusTransitions[from].includes(to);
 }
 
-async function getRestaurantIdForUser(userId: string) {
-  const restaurant = await prisma.restaurantProfile.findUnique({
-    where: { userId },
-    select: { id: true },
-  });
-
-  return restaurant?.id ?? null;
-}
-
 export default async function RestaurantStaffPage({ searchParams }: PageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
-  const user = await requireRestaurantUser();
-
-  const restaurantId = await getRestaurantIdForUser(user.id);
-  if (!restaurantId) {
-    redirect("/onboarding/restaurant");
-  }
+  const access = await requireRestaurantAccess("MANAGE_STAFF");
+  const restaurantId = access.restaurantId;
 
   async function inviteStaff(formData: FormData) {
     "use server";
 
-    const authedUser = await requireRestaurantUser();
-    const authedRestaurantId = await getRestaurantIdForUser(authedUser.id);
-    if (!authedRestaurantId) {
-      redirect("/onboarding/restaurant");
-    }
+    const authedAccess = await requireRestaurantAccess("MANAGE_STAFF");
+    const authedRestaurantId = authedAccess.restaurantId;
 
     const fullName = String(formData.get("fullName") || "").trim();
     const emailInput = String(formData.get("email") || "");
@@ -121,21 +107,51 @@ export default async function RestaurantStaffPage({ searchParams }: PageProps) {
       redirect("/restaurant/staff?error=invalid-staff-role");
     }
 
+    const inviteToken = generateToken(24);
+    const inviteExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
+
+    const existingStaff = await prisma.restaurantStaffMember.findFirst({
+      where: {
+        restaurantId: authedRestaurantId,
+        email,
+      },
+      select: {
+        id: true,
+        userId: true,
+      },
+    });
+
+    if (existingStaff?.userId) {
+      redirect("/restaurant/staff?error=staff-email-linked");
+    }
+
     try {
-      await prisma.restaurantStaffMember.create({
-        data: {
-          restaurantId: authedRestaurantId,
-          fullName,
-          email,
-          role,
-          status: RestaurantStaffStatus.INVITED,
-        },
-      });
+      if (existingStaff) {
+        await prisma.restaurantStaffMember.update({
+          where: { id: existingStaff.id },
+          data: {
+            fullName,
+            role,
+            status: "INVITED",
+            inviteToken,
+            inviteExpiresAt,
+          },
+        });
+      } else {
+        await prisma.restaurantStaffMember.create({
+          data: {
+            restaurantId: authedRestaurantId,
+            fullName,
+            email,
+            role,
+            status: RestaurantStaffStatus.INVITED,
+            inviteToken,
+            inviteExpiresAt,
+          },
+        });
+      }
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
         redirect("/restaurant/staff?error=staff-email-exists");
       }
       throw error;
@@ -147,11 +163,8 @@ export default async function RestaurantStaffPage({ searchParams }: PageProps) {
   async function updateStaffRole(formData: FormData) {
     "use server";
 
-    const authedUser = await requireRestaurantUser();
-    const authedRestaurantId = await getRestaurantIdForUser(authedUser.id);
-    if (!authedRestaurantId) {
-      redirect("/onboarding/restaurant");
-    }
+    const authedAccess = await requireRestaurantAccess("MANAGE_STAFF");
+    const authedRestaurantId = authedAccess.restaurantId;
 
     const staffId = String(formData.get("staffId") || "").trim();
     const roleInput = String(formData.get("role") || "").trim();
@@ -173,11 +186,16 @@ export default async function RestaurantStaffPage({ searchParams }: PageProps) {
       select: {
         id: true,
         role: true,
+        status: true,
       },
     });
 
     if (!staffMember) {
       redirect("/restaurant/staff?error=staff-not-found");
+    }
+
+    if (staffMember.status === "DISABLED" && (parsedRole === "MANAGER" || parsedRole === "SUPERVISOR")) {
+      redirect("/restaurant/staff?error=invalid-staff-role");
     }
 
     if (staffMember.role !== parsedRole) {
@@ -193,11 +211,8 @@ export default async function RestaurantStaffPage({ searchParams }: PageProps) {
   async function updateStaffStatus(formData: FormData) {
     "use server";
 
-    const authedUser = await requireRestaurantUser();
-    const authedRestaurantId = await getRestaurantIdForUser(authedUser.id);
-    if (!authedRestaurantId) {
-      redirect("/onboarding/restaurant");
-    }
+    const authedAccess = await requireRestaurantAccess("MANAGE_STAFF");
+    const authedRestaurantId = authedAccess.restaurantId;
 
     const staffId = String(formData.get("staffId") || "").trim();
     const statusInput = String(formData.get("status") || "").trim();
@@ -219,11 +234,20 @@ export default async function RestaurantStaffPage({ searchParams }: PageProps) {
       select: {
         id: true,
         status: true,
+        userId: true,
       },
     });
 
     if (!staffMember) {
       redirect("/restaurant/staff?error=staff-not-found");
+    }
+
+    if (parsedStatus === "INVITED") {
+      redirect("/restaurant/staff?error=invalid-status-transition");
+    }
+
+    if (parsedStatus === "ACTIVE" && !staffMember.userId) {
+      redirect("/restaurant/staff?error=invalid-status-transition");
     }
 
     if (staffMember.status !== parsedStatus && !canTransitionStatus(staffMember.status, parsedStatus)) {
@@ -258,6 +282,16 @@ export default async function RestaurantStaffPage({ searchParams }: PageProps) {
     prisma.restaurantStaffMember.findMany({
       where: whereClause,
       orderBy: [{ status: "asc" }, { invitedAt: "desc" }],
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        role: true,
+        status: true,
+        inviteToken: true,
+        inviteExpiresAt: true,
+        userId: true,
+      },
     }),
     prisma.restaurantStaffMember.groupBy({
       by: ["status"],
@@ -498,7 +532,7 @@ export default async function RestaurantStaffPage({ searchParams }: PageProps) {
                                 defaultValue={staffMember.status}
                                 className="w-full rounded-md border border-border bg-background px-2 py-2 text-sm"
                               >
-                                {STAFF_STATUSES.map((status) => (
+                                {STAFF_STATUSES.filter((status) => status !== "INVITED").map((status) => (
                                   <option key={status} value={status}>
                                     {restaurantStaffStatusEnumToLabel[status]}
                                   </option>
@@ -508,6 +542,23 @@ export default async function RestaurantStaffPage({ searchParams }: PageProps) {
                             <Button type="submit" size="sm" variant="outline">Update status</Button>
                           </form>
                         </div>
+
+                        {staffMember.status === "INVITED" && staffMember.inviteToken ? (
+                          <div className="mt-3 rounded-md border border-border/70 bg-muted/20 p-2 text-xs text-muted-foreground">
+                            <p>
+                              Invite link:{" "}
+                              <Link
+                                className="underline"
+                                href={`/staff/accept?token=${encodeURIComponent(staffMember.inviteToken)}`}
+                              >
+                                /staff/accept?token={staffMember.inviteToken}
+                              </Link>
+                            </p>
+                            {staffMember.inviteExpiresAt ? (
+                              <p>Expires: {staffMember.inviteExpiresAt.toLocaleString()}</p>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
                     );
                   })}

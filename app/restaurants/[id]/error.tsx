@@ -27,7 +27,7 @@ export default function RestaurantErrorPage({ error, reset }: ErrorPageProps) {
               Try again
             </Button>
             <Button asChild variant="outline">
-              <Link href="/restaurants">Back to restaurants</Link>
+              <Link href="/app">Back to restaurants</Link>
             </Button>
           </div>
         </CardContent>
@@ -35,3 +35,4 @@ export default function RestaurantErrorPage({ error, reset }: ErrorPageProps) {
     </main>
   );
 }
+
