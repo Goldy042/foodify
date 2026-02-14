@@ -1,3 +1,4 @@
+export * from "./driver-assignments";
 export * from "./mappers";
 export * from "./orders";
 export * from "./profiles";

@@ -18,7 +18,15 @@ export async function getCustomerOrder(orderId: string, userId: string) {
           },
         },
       },
-      assignment: true,
+      assignment: {
+        include: {
+          driver: {
+            select: {
+              fullName: true,
+            },
+          },
+        },
+      },
       payment: true,
     },
   });

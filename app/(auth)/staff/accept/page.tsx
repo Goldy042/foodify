@@ -156,7 +156,7 @@ export default async function AcceptStaffInvitePage({ searchParams }: PageProps)
 
         <Card className="border-border/70 shadow-sm">
           <CardHeader>
-            <CardTitle>Accept invite</CardTitle>
+           <CardTitle>Accept invite</CardTitle> 
           </CardHeader>
           <CardContent className="space-y-4">
             {errorMessage ? (

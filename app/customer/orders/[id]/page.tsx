@@ -81,6 +81,13 @@ export default async function CustomerOrderPage({
     "DELIVERED",
   ];
   const currentIndex = timeline.indexOf(order.status);
+  const deliveryProgressMessageByStatus: Partial<Record<typeof order.status, string>> = {
+    DRIVER_ASSIGNED: "A rider has been assigned and will pick up your order shortly.",
+    PICKED_UP: "Your rider picked up the order and is preparing to move.",
+    EN_ROUTE: "Your rider is currently en route to your location.",
+    DELIVERED: "Delivery confirmed successfully.",
+  };
+  const deliveryProgressMessage = deliveryProgressMessageByStatus[order.status];
   const statusLabel = (status: string) =>
     status
       .split("_")
@@ -167,6 +174,16 @@ export default async function CustomerOrderPage({
                   <CardTitle className="text-xl">Order tracking</CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {order.assignment?.driver ? (
+                    <p className="mb-3 text-sm text-muted-foreground">
+                      Rider: <span className="font-medium">{order.assignment.driver.fullName}</span>
+                    </p>
+                  ) : null}
+                  {deliveryProgressMessage ? (
+                    <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+                      {deliveryProgressMessage}
+                    </div>
+                  ) : null}
                   <ol className="grid gap-3 text-sm">
                     {timeline.map((status, index) => {
                       const isComplete = currentIndex >= index;

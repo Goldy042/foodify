@@ -453,6 +453,8 @@ model PayoutLedgerEntry {
 
   order           Order @relation(fields: [orderId], references: [id])
   releasedByAdmin User? @relation("AdminPayouts", fields: [releasedByAdminId], references: [id])
+
+  @@unique([orderId, recipientType, recipientId])
 }
 
 model Refund {

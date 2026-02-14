@@ -25,6 +25,9 @@ export function getPostLoginRedirectPath(input: RoleRedirectInput) {
   }
 
   if (input.role === Role.DRIVER) {
+    if (input.status === "APPROVED") {
+      return "/driver";
+    }
     return "/onboarding/driver";
   }
 

@@ -12,6 +12,7 @@ import {
 } from "@/app/lib/db";
 import { updateUser, upsertDriverProfile } from "@/app/lib/db";
 import { AppHeader } from "@/components/app/app-header";
+import Link from "next/link";
 
 function hashString(value: string) {
   let hash = 0;
@@ -50,6 +51,7 @@ export default async function DriverOnboardingPage({
   if (user.status === "PENDING_APPROVAL" || user.status === "APPROVED") {
     return (
       <div className="min-h-screen bg-background">
+        <AppHeader />
         <main className="mx-auto flex min-h-screen w-full max-w-xl items-center px-6 py-16">
           <Card className="w-full border-border/70 shadow-sm">
             <CardHeader>
@@ -60,10 +62,17 @@ export default async function DriverOnboardingPage({
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 {user.status === "APPROVED"
-                  ? "You can now go online and accept assignments."
+                  ? "Your rider demo profile is live. Proceed to your dashboard."
                   : "Your profile is pending approval. We will notify you once reviewed."}
               </p>
             </CardHeader>
+            {user.status === "APPROVED" ? (
+              <CardContent>
+                <Button asChild className="w-full">
+                  <Link href="/driver">Open rider dashboard</Link>
+                </Button>
+              </CardContent>
+            ) : null}
           </Card>
         </main>
       </div>
@@ -99,11 +108,9 @@ export default async function DriverOnboardingPage({
       accountName: authedUser.fullName || "Foodify Rider",
     });
 
-    await updateUser(authedUser.id, {
-      status: "PENDING_APPROVAL",
-    });
+    await updateUser(authedUser.id, { status: "APPROVED" });
 
-    redirect("/onboarding/driver");
+    redirect("/driver");
   }
 
   return (
@@ -118,8 +125,8 @@ export default async function DriverOnboardingPage({
             Activate your rider profile.
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            For the defense demo we auto-fill your driver profile. You can update
-            details later when the dashboard is live.
+            For this demo we auto-create your rider profile and skip manual
+            verification fields like license validation.
           </p>
         </header>
 
@@ -129,7 +136,7 @@ export default async function DriverOnboardingPage({
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Tap below to generate your rider profile with demo data.
+              Tap below to generate your rider profile with demo-safe data.
             </p>
             <form action={completeDriverProfile}>
               <Button type="submit" className="w-full">

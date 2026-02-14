@@ -34,7 +34,15 @@ function getRoleNav(userRole: Role, userStatus: string): NavItem[] {
   }
 
   if (userRole === Role.DRIVER) {
-    return [{ label: "Dashboard", href: "/onboarding/driver" }];
+    if (userStatus === "APPROVED") {
+      return [
+        { label: "Dashboard", href: "/driver" },
+        { label: "Assignments", href: "/driver/assignments" },
+        { label: "Payouts", href: "/driver/payouts" },
+        { label: "Profile", href: "/driver/profile" },
+      ];
+    }
+    return [{ label: "Onboarding", href: "/onboarding/driver" }];
   }
 
   return [];
@@ -125,6 +133,12 @@ export async function AppHeader() {
             <Button asChild size="sm" variant="outline">
               <Link href="/restaurant">Restaurant dashboard</Link>
             </Button>
+          ) : user.role === Role.DRIVER ? (
+            <Button asChild size="sm" variant="outline">
+              <Link href={user.status === "APPROVED" ? "/driver" : "/onboarding/driver"}>
+                {user.status === "APPROVED" ? "Rider dashboard" : "Go to onboarding"}
+              </Link>
+            </Button>
           ) : (
             <Button asChild size="sm" variant="outline">
               <Link href={`/onboarding/${user.role.toLowerCase()}`}>
@@ -133,7 +147,7 @@ export async function AppHeader() {
             </Button>
           )}
           <form action={signOut}>
-            <Button type="submit" size="sm" variant="outline">
+            <Button className="z-[999]" type="submit" size="sm" variant="outline">
               Log out
             </Button>
           </form>

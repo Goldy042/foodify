@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { OrderStatus } from "@/app/generated/prisma/client";
 
 import prisma from "@/lib/prisma";
+import { createDriverAssignment } from "@/app/lib/db";
 import { AppHeader } from "@/components/app/app-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,15 +35,21 @@ const successMessages: Record<string, string> = {
   "order-rejected": "Order rejected.",
   "order-preparing": "Order moved to preparing.",
   "order-ready": "Order marked ready for pickup.",
+  "driver-assigned": "Rider assigned successfully.",
 };
 
 const errorMessages: Record<string, string> = {
   "order-not-found": "Order could not be found for this restaurant.",
   "invalid-transition": "This order can no longer move to that status.",
+  "driver-not-found": "Selected rider could not be found.",
+  "driver-not-eligible": "Selected rider is not eligible for assignments.",
+  "order-already-assigned": "Order already has an active rider assignment.",
+  "invalid-assignment-status": "Order is not ready for rider assignment.",
+  "assign-failed": "Unable to assign rider right now.",
 };
 
 const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
-  PLACED: ["ACCEPTED", "REJECTED"],
+  PLACED: [],
   PAID: ["ACCEPTED", "REJECTED"],
   FAILED_PAYMENT: [],
   ACCEPTED: ["PREPARING"],
@@ -140,26 +147,125 @@ export default async function RestaurantOrdersPage({ searchParams }: PageProps) 
     redirect("/restaurant/orders");
   }
 
-  const orders = await prisma.order.findMany({
-    where: {
-      restaurantId,
-    },
-    orderBy: [{ createdAt: "desc" }],
-    include: {
-      customer: {
-        select: {
-          fullName: true,
-        },
+  async function assignDriver(formData: FormData) {
+    "use server";
+
+    const authedAccess = await requireRestaurantAccess("MANAGE_ORDERS");
+    const authedRestaurantId = authedAccess.restaurantId;
+
+    const orderId = String(formData.get("orderId") || "").trim();
+    const driverId = String(formData.get("driverId") || "").trim();
+    if (!orderId || !driverId) {
+      redirect("/restaurant/orders?error=assign-failed");
+    }
+
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        restaurantId: authedRestaurantId,
       },
-      items: {
-        include: {
-          menuItem: {
-            select: { name: true },
+      select: {
+        id: true,
+      },
+    });
+    if (!order) {
+      redirect("/restaurant/orders?error=order-not-found");
+    }
+
+    try {
+      await createDriverAssignment({ orderId, driverId });
+      redirect("/restaurant/orders?status=driver-assigned");
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        redirect("/restaurant/orders?error=assign-failed");
+      }
+      if (error.message === "INVALID_DRIVER") {
+        redirect("/restaurant/orders?error=driver-not-found");
+      }
+      if (error.message === "DRIVER_NOT_ELIGIBLE") {
+        redirect("/restaurant/orders?error=driver-not-eligible");
+      }
+      if (error.message === "ORDER_ALREADY_ASSIGNED") {
+        redirect("/restaurant/orders?error=order-already-assigned");
+      }
+      if (error.message === "INVALID_ORDER_STATUS") {
+        redirect("/restaurant/orders?error=invalid-assignment-status");
+      }
+      redirect("/restaurant/orders?error=assign-failed");
+    }
+  }
+
+  const restaurant = await prisma.restaurantProfile.findUnique({
+    where: { id: restaurantId },
+    select: { area: true },
+  });
+
+  const [availableDrivers, orders] = await Promise.all([
+    prisma.user.findMany({
+      where: {
+        role: "DRIVER",
+        status: "APPROVED",
+        isSuspended: false,
+        ...(restaurant?.area
+          ? {
+              driverProfile: {
+                serviceAreas: {
+                  has: restaurant.area,
+                },
+              },
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        fullName: true,
+        driverProfile: {
+          select: {
+            vehicleType: true,
           },
         },
       },
-    },
-  });
+      orderBy: [
+        {
+          driverAssignments: {
+            _count: "asc",
+          },
+        },
+        { createdAt: "asc" },
+      ],
+    }),
+    prisma.order.findMany({
+      where: {
+        restaurantId,
+      },
+      orderBy: [{ createdAt: "desc" }],
+      include: {
+        customer: {
+          select: {
+            fullName: true,
+          },
+        },
+        assignment: {
+          include: {
+            driver: {
+              select: {
+                fullName: true,
+              },
+            },
+          },
+        },
+        items: {
+          include: {
+            menuItem: {
+              select: { name: true },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  const driversInArea = availableDrivers;
 
   const prioritizedOrders = [...orders].sort((a, b) => {
     const statusWeightDiff = orderPriority(a.status) - orderPriority(b.status);
@@ -276,20 +382,28 @@ export default async function RestaurantOrdersPage({ searchParams }: PageProps) 
                       {formatCurrency(Number(order.total))}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <form action={transitionOrder}>
-                        <input type="hidden" name="orderId" value={order.id} />
-                        <input type="hidden" name="nextStatus" value="ACCEPTED" />
-                        <Button type="submit" size="sm">
-                          Accept
-                        </Button>
-                      </form>
-                      <form action={transitionOrder}>
-                        <input type="hidden" name="orderId" value={order.id} />
-                        <input type="hidden" name="nextStatus" value="REJECTED" />
-                        <Button type="submit" size="sm" variant="outline">
-                          Reject
-                        </Button>
-                      </form>
+                      {order.status === "PAID" ? (
+                        <>
+                          <form action={transitionOrder}>
+                            <input type="hidden" name="orderId" value={order.id} />
+                            <input type="hidden" name="nextStatus" value="ACCEPTED" />
+                            <Button type="submit" size="sm">
+                              Accept
+                            </Button>
+                          </form>
+                          <form action={transitionOrder}>
+                            <input type="hidden" name="orderId" value={order.id} />
+                            <input type="hidden" name="nextStatus" value="REJECTED" />
+                            <Button type="submit" size="sm" variant="outline">
+                              Reject
+                            </Button>
+                          </form>
+                        </>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">
+                          Waiting for payment confirmation before accepting.
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))
@@ -365,6 +479,52 @@ export default async function RestaurantOrdersPage({ searchParams }: PageProps) 
                     <p className="mt-1 text-xs text-muted-foreground">
                       Confirmation code: {order.deliveryConfirmationCode}
                     </p>
+                    {order.status === "READY_FOR_PICKUP" ? (
+                      <form action={assignDriver} className="mt-3 flex flex-wrap items-center gap-2">
+                        <input type="hidden" name="orderId" value={order.id} />
+                        <select
+                          name="driverId"
+                          required
+                          className="h-9 min-w-[190px] rounded-md border border-border bg-background px-3 text-sm"
+                          defaultValue=""
+                        >
+                          <option value="" disabled>
+                            Assign rider
+                          </option>
+                          {driversInArea.map((driver) => (
+                            <option key={driver.id} value={driver.id}>
+                              {driver.fullName} ({driver.driverProfile?.vehicleType?.toLowerCase() ?? "rider"})
+                            </option>
+                          ))}
+                        </select>
+                        <Button type="submit" size="sm">
+                          Dispatch
+                        </Button>
+                        <p className="w-full text-xs text-muted-foreground">
+                          Manual dispatch: riders are listed by lowest assignment load first.
+                        </p>
+                      </form>
+                    ) : null}
+                    {order.assignment?.driver ? (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Rider: {order.assignment.driver.fullName}
+                      </p>
+                    ) : null}
+                    {order.status === "DRIVER_ASSIGNED" ? (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Rider assigned. Waiting for pickup confirmation.
+                      </p>
+                    ) : null}
+                    {order.status === "PICKED_UP" ? (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Order picked up. Rider should transition to en route next.
+                      </p>
+                    ) : null}
+                    {order.status === "EN_ROUTE" ? (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Rider is on the way to customer.
+                      </p>
+                    ) : null}
                   </div>
                 ))
               )}
